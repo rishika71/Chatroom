@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragmentNav">
+
+    <fragment
+        android:id="@+id/loginFragmentNav"
+        android:name="com.example.chatroom.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragmentNav_to_chatroomsFragmentNav"
+            app:destination="@id/chatroomsFragmentNav" />
+        <action
+            android:id="@+id/action_loginFragmentNav_to_createNewAccountFragment"
+            app:destination="@id/createNewAccountFragment" />
+        <action
+            android:id="@+id/action_loginFragmentNav_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatroomsFragmentNav"
+        android:name="com.example.chatroom.ChatroomsFragment"
+        android:label="fragment_chatrooms"
+        tools:layout="@layout/fragment_chatrooms" >
+        <action
+            android:id="@+id/action_chatroomsFragmentNav_to_loginFragmentNav"
+            app:destination="@id/loginFragmentNav" />
+        <action
+            android:id="@+id/action_chatroomsFragmentNav_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
+        <action
+            android:id="@+id/action_chatroomsFragmentNav_to_usersFragment"
+            app:destination="@id/usersFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createNewAccountFragment"
+        android:name="com.example.chatroom.CreateNewAccountFragment"
+        android:label="fragment_create_new_account"
+        tools:layout="@layout/fragment_create_new_account" >
+        <action
+            android:id="@+id/action_createNewAccountFragment_to_loginFragmentNav"
+            app:destination="@id/loginFragmentNav" />
+        <action
+            android:id="@+id/action_createNewAccountFragment_to_chatroomsFragmentNav"
+            app:destination="@id/chatroomsFragmentNav" />
+    </fragment>
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.example.chatroom.ForgotPasswordFragment"
+        android:label="fragment_forgot_password"
+        tools:layout="@layout/fragment_forgot_password" >
+        <action
+            android:id="@+id/action_forgotPasswordFragment_to_loginFragmentNav"
+            app:destination="@id/loginFragmentNav" />
+    </fragment>
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.chatroom.UserProfileFragment"
+        android:label="fragment_user_profile"
+        tools:layout="@layout/fragment_user_profile" >
+        <action
+            android:id="@+id/action_userProfileFragment_to_chatroomsFragmentNav"
+            app:destination="@id/chatroomsFragmentNav" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_usersFragment"
+            app:destination="@id/usersFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_loginFragmentNav"
+            app:destination="@id/loginFragmentNav" />
+    </fragment>
+    <fragment
+        android:id="@+id/usersFragment"
+        android:name="com.example.chatroom.UsersFragment"
+        android:label="fragment_users"
+        tools:layout="@layout/fragment_users" >
+        <action
+            android:id="@+id/action_usersFragment_to_chatroomsFragmentNav"
+            app:destination="@id/chatroomsFragmentNav" />
+        <action
+            android:id="@+id/action_usersFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
+        <action
+            android:id="@+id/action_usersFragment_to_loginFragmentNav"
+            app:destination="@id/loginFragmentNav" />
+    </fragment>
+</navigation>

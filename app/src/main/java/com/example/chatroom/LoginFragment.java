@@ -1,0 +1,147 @@
+package com.example.chatroom;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import org.jetbrains.annotations.NotNull;
+
+
+public class LoginFragment extends Fragment {
+
+    final private String TAG = "demo";
+    private FirebaseAuth mAuth;
+    NavController navController;
+
+    String email, password;
+
+    TextInputEditText emailEditText, passwordEditText;
+
+
+    public LoginFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null)
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            navController.navigate(R.id.action_loginFragmentNav_to_chatroomsFragmentNav);
+            Log.d(TAG, "user is already signed in");
+        }
+        else{
+            Log.d(TAG, "user is not sign in");
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+
+        getActivity().setTitle(R.string.login);
+
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
+
+        emailEditText = view.findViewById(R.id.emailTextFieldId);
+        passwordEditText = view.findViewById(R.id.passwordTextFieldId);
+
+        //NavController navController = Navigation.findNavController(view);
+        navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
+
+        //........Create New Account
+        view.findViewById(R.id.createNewAccountId).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                navController.navigate(R.id.action_loginFragmentNav_to_createNewAccountFragment);
+            }
+        });
+
+        //........Forgot Password
+        view.findViewById(R.id.forgetPasswordButtonId).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               navController.navigate(R.id.action_loginFragmentNav_to_forgotPasswordFragment);
+            }
+        });
+
+        //......Login Button......
+        view.findViewById(R.id.loginButtonId).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                email = emailEditText.getText().toString();
+                password = passwordEditText.getText().toString();
+
+                if(email.isEmpty()){
+                    getAlertDialogBox(getResources().getString(R.string.enterEmail));
+                }else if(password.isEmpty()){
+                    getAlertDialogBox(getResources().getString(R.string.enterPassword));
+                }else{
+
+                    mAuth = FirebaseAuth.getInstance();
+                    mAuth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if(task.isSuccessful()){
+                                        navController.navigate(R.id.action_loginFragmentNav_to_chatroomsFragmentNav);
+
+                                    } else{
+                                        getAlertDialogBox(task.getException().getMessage());
+                                    }
+
+                                }
+                            });
+                }
+            }
+        });
+        return view;
+    }
+
+
+    public void getAlertDialogBox(String errorMessage){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(getResources().getString(R.string.errorMessage))
+                .setMessage(errorMessage);
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.create().show();
+
+    }
+}
