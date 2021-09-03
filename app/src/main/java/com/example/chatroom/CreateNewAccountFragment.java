@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.example.chatroom.databinding.FragmentCreateNewAccountBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -48,15 +49,7 @@ public class CreateNewAccountFragment extends Fragment {
     String fileName;
     String email, password, firstName, lastName, city, gender;
 
-    EditText emailEditText, passwordEditText, firstNameEditText, lastNameEditText, cityEditText;
-    ImageView imageView;
-    RadioGroup radioGroup;
-    RadioButton radioGenderButton;
-
-
-    public CreateNewAccountFragment() {
-        // Required empty public constructor
-    }
+    FragmentCreateNewAccountBinding binding;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -95,34 +88,24 @@ public class CreateNewAccountFragment extends Fragment {
 
         getActivity().setTitle(R.string.createAccount);
 
-        View view = inflater.inflate(R.layout.fragment_create_new_account, container, false);
+        binding = FragmentCreateNewAccountBinding.inflate(inflater, container, false);
 
-        firstNameEditText = view.findViewById(R.id.createFragmentFirstNameId);
-        lastNameEditText = view.findViewById(R.id.createFragmentLastNameId);
-        cityEditText = view.findViewById(R.id.createFragmentCityNameId);
-        emailEditText = view.findViewById(R.id.createFragmentEmailId);
-        passwordEditText = view.findViewById(R.id.createFragmentPasswordId);
-        imageView = view.findViewById(R.id.userImage);
-        radioGroup = view.findViewById(R.id.radioGroup);
-
-        imageView.setImageResource(R.drawable.profile_image);
-
-        int selectedId = radioGroup.getCheckedRadioButtonId();
-        radioGenderButton = view.findViewById(selectedId);
+        View view = binding.getRoot();
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
         //....Register Button......
-        view.findViewById(R.id.registerButtonId).setOnClickListener(new View.OnClickListener() {
+        binding.registerButtonId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                firstName = firstNameEditText.getText().toString();
-                lastName = lastNameEditText.getText().toString();
-                city = cityEditText.getText().toString();
-                email = emailEditText.getText().toString();
-                password = passwordEditText.getText().toString();
-                gender = radioGenderButton.getText().toString();
+                firstName = binding.createFragmentFirstNameId.getText().toString();
+                lastName = binding.createFragmentLastNameId.getText().toString();
+                city = binding.createFragmentCityNameId.getText().toString();
+                email = binding.createFragmentEmailId.getText().toString();
+                password = binding.createFragmentPasswordId.getText().toString();
+                RadioButton radioButton = view.findViewById(binding.radioGroup.getCheckedRadioButtonId());
+                gender = radioButton.getText().toString();
 
                 if(firstName.isEmpty()){
                     getAlertDialogBox(getResources().getString(R.string.enterFirstName));
@@ -160,7 +143,7 @@ public class CreateNewAccountFragment extends Fragment {
         });
 
         //....Cancel Button......
-        view.findViewById(R.id.cancelButtonId).setOnClickListener(new View.OnClickListener() {
+        binding.cancelButtonId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 navController.navigate(R.id.action_createNewAccountFragment_to_loginFragmentNav);
@@ -168,7 +151,7 @@ public class CreateNewAccountFragment extends Fragment {
         });
 
         //......Select Images from gallery........
-        view.findViewById(R.id.userImage).setOnClickListener(new View.OnClickListener() {
+        binding.userImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
@@ -176,8 +159,8 @@ public class CreateNewAccountFragment extends Fragment {
             }
         });
 
-//        //......Select Images from gallery........
-//        view.findViewById(R.id.userImage).setOnClickListener(new View.OnClickListener() {
+        //......Select Images from gallery........
+//        binding.userImage.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
 //                Intent intent = new Intent();

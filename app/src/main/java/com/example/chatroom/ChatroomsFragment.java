@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.chatroom.databinding.FragmentChatroomsBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,10 +27,7 @@ public class ChatroomsFragment extends Fragment {
 
     BottomNavigationView bottomNavigationView;
 
-    public ChatroomsFragment() {
-        // Required empty public constructor
-    }
-
+    FragmentChatroomsBinding binding;
 
     public static ChatroomsFragment newInstance(String param1, String param2) {
         ChatroomsFragment fragment = new ChatroomsFragment();
@@ -45,16 +43,16 @@ public class ChatroomsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
 
         getActivity().setTitle(R.string.chatrooms);
 
-        View view = inflater.inflate(R.layout.fragment_chatrooms, container, false);
+        binding = FragmentChatroomsBinding.inflate(inflater, container, false);
+
+        View view = binding.getRoot();
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
-        bottomNavigationView = view.findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.chatroomsIcon);
+        binding.bottomNavigation.setSelectedItemId(R.id.chatroomsIcon);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -80,22 +78,5 @@ public class ChatroomsFragment extends Fragment {
 
         return view;
 
-    }
-
-    @Override
-    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        NavController navController = Navigation.findNavController(view);
-
-        Button button = view.findViewById(R.id.cancelButtonID);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                //NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.loginFragmentId, true).build();
-                navController.navigate(R.id.action_chatroomsFragmentNav_to_loginFragmentNav);
-
-            }
-        });
     }
 }

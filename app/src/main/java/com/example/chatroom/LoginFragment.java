@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.chatroom.databinding.FragmentLoginBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -34,14 +35,10 @@ public class LoginFragment extends Fragment {
     private FirebaseAuth mAuth;
     NavController navController;
 
+    FragmentLoginBinding binding;
+
     String email, password;
 
-    TextInputEditText emailEditText, passwordEditText;
-
-
-    public LoginFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public void onStart() {
@@ -51,17 +48,7 @@ public class LoginFragment extends Fragment {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
             navController.navigate(R.id.action_loginFragmentNav_to_chatroomsFragmentNav);
-            Log.d(TAG, "user is already signed in");
         }
-        else{
-            Log.d(TAG, "user is not sign in");
-        }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -71,16 +58,15 @@ public class LoginFragment extends Fragment {
 
         getActivity().setTitle(R.string.login);
 
-        View view = inflater.inflate(R.layout.fragment_login, container, false);
+        binding = FragmentLoginBinding.inflate(inflater, container, false);
 
-        emailEditText = view.findViewById(R.id.emailTextFieldId);
-        passwordEditText = view.findViewById(R.id.passwordTextFieldId);
+        View view = binding.getRoot();
 
         //NavController navController = Navigation.findNavController(view);
         navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
         //........Create New Account
-        view.findViewById(R.id.createNewAccountId).setOnClickListener(new View.OnClickListener() {
+        binding.createNewAccountId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 navController.navigate(R.id.action_loginFragmentNav_to_createNewAccountFragment);
@@ -88,7 +74,7 @@ public class LoginFragment extends Fragment {
         });
 
         //........Forgot Password
-        view.findViewById(R.id.forgetPasswordButtonId).setOnClickListener(new View.OnClickListener() {
+        binding.forgetPasswordButtonId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                navController.navigate(R.id.action_loginFragmentNav_to_forgotPasswordFragment);
@@ -96,11 +82,11 @@ public class LoginFragment extends Fragment {
         });
 
         //......Login Button......
-        view.findViewById(R.id.loginButtonId).setOnClickListener(new View.OnClickListener() {
+        binding.loginButtonId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                email = emailEditText.getText().toString();
-                password = passwordEditText.getText().toString();
+                email = binding.emailTextFieldId.getText().toString();
+                password = binding.passwordTextFieldId.getText().toString();
 
                 if(email.isEmpty()){
                     getAlertDialogBox(getResources().getString(R.string.enterEmail));

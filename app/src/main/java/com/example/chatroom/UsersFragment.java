@@ -12,32 +12,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.chatroom.databinding.FragmentUsersBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigInteger;
+
 
 public class UsersFragment extends Fragment {
 
     BottomNavigationView bottomNavigationView;
 
-    public UsersFragment() {
-        // Required empty public constructor
-    }
-
+    FragmentUsersBinding binding;
 
     public static UsersFragment newInstance(String param1, String param2) {
-        UsersFragment fragment = new UsersFragment();
-
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
+        return new UsersFragment();
     }
 
     @Override
@@ -46,12 +38,12 @@ public class UsersFragment extends Fragment {
         // Inflate the layout for this fragment
         getActivity().setTitle(R.string.users);
 
-        View view = inflater.inflate(R.layout.fragment_users, container, false);
+        binding = FragmentUsersBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
-        bottomNavigationView = view.findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.usersIcon);
+        binding.bottomNavigation.setSelectedItemId(R.id.usersIcon);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
