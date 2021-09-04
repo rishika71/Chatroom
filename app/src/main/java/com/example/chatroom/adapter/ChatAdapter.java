@@ -3,10 +3,12 @@ package com.example.chatroom.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.chatroom.R;
 import com.example.chatroom.databinding.ChatLayoutBinding;
 import com.example.chatroom.models.Chat;
@@ -16,9 +18,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -50,8 +55,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
         Chat chat = chats.get(position);
 
         holder.binding.textView7.setText(chat.getDisplay());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("h:m a");
-        holder.binding.textView8.setText(chat.getContent() + "           " + dateFormat.format(chat.getCreated_at()));
+        holder.binding.textView8.setText("> " + chat.getContent());
+        holder.binding.textView10.setText(Utils.getDateString(chat.getCreated_at()));
         holder.binding.textView9.setText(chat.getLikedBy().size() + " ♥");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -63,9 +68,36 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             holder.binding.imageView.setImageResource(R.drawable.like_favorite);
         }
 
+        holder.binding.imageView3.setVisibility(View.GONE);
         if (chat.owner.equals(cur_user.getUid())) {
             holder.binding.imageView.setVisibility(View.GONE);
+            holder.binding.imageView3.setVisibility(View.VISIBLE);
         }
+
+        holder.binding.imageView3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                am.toggleDialog(true);
+                DocumentReference dbc = db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(chat.getId());
+                dbc.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        dbc.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                am.toggleDialog(false);
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(view.getContext(), "Message Deleted", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    task.getException().printStackTrace();
+                                }
+                            }
+                        });
+
+                    }
+                });
+            }
+        });
 
         holder.binding.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +128,29 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                             holder.liked = true;
                         }
                     });
+                }
+            }
+        });
+
+        db.collection(Utils.DB_PROFILE).document(chat.getOwner()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.get("photoRef") != null) {
+                        String photoRef = (String) documentSnapshot.get("photoRef");
+                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(photoRef);
+
+                        Glide.with(holder.binding.getRoot())
+                                .load(storageReference)
+                                .into(holder.binding.imageView2);
+                    } else {
+                        Glide.with(holder.binding.getRoot())
+                                .load(R.drawable.profile_image)
+                                .into(holder.binding.imageView2);
+                    }
+                } else {
+                    task.getException().printStackTrace();
                 }
             }
         });

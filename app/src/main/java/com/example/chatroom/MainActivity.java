@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.chatroom.adapter.ChatAdapter;
 import com.example.chatroom.adapter.ChatroomAdapter;
 
-public class MainActivity extends AppCompatActivity implements ChatroomsFragment.IChatRoom, ChatroomAdapter.IChatRoomAdapter, ChatroomFragment.IChat, ChatAdapter.IChatAdapter {
+public class MainActivity extends AppCompatActivity implements ChatroomsFragment.IChatRoom, UsersFragment.IUsers, ChatroomAdapter.IChatRoomAdapter, ChatroomFragment.IChat, ChatAdapter.IChatAdapter {
 
     ProgressDialog dialog;
 

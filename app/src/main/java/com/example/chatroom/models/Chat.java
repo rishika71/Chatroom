@@ -66,7 +66,7 @@ public class Chat implements Serializable {
     }
 
     public Date getCreated_at() {
-        return created_at;
+        return (created_at == null ? new Date() : created_at);
     }
 
     public void setCreated_at(Date created_at) {

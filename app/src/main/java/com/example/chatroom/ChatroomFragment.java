@@ -121,7 +121,7 @@ public class ChatroomFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(getContext(), "Chat Sent", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Message Sent", Toast.LENGTH_SHORT).show();
                             binding.editTextTextPersonName.setText("");
                         } else {
                             task.getException().printStackTrace();
