@@ -21,11 +21,6 @@ public class UserProfileFragment extends Fragment {
 
     FragmentUserProfileBinding binding;
 
-    public static UserProfileFragment newInstance(String param1, String param2) {
-        UserProfileFragment fragment = new UserProfileFragment();
-        return fragment;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

@@ -47,11 +47,6 @@ public class ChatroomsFragment extends Fragment {
 
     IChatRoom am;
 
-    public static ChatroomsFragment newInstance(String param1, String param2) {
-        ChatroomsFragment fragment = new ChatroomsFragment();
-        return fragment;
-    }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -119,6 +114,7 @@ public class ChatroomsFragment extends Fragment {
                 HashMap<String, Object> chatroom = new HashMap<>();
                 chatroom.put("created_at", FieldValue.serverTimestamp());
                 chatroom.put("created_by", cur.getDisplayName());
+                chatroom.put("viewers", new ArrayList<>());
                 am.toggleDialog(true);
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 

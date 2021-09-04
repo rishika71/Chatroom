@@ -36,10 +36,6 @@ public class UsersFragment extends Fragment {
 
     IUsers am;
 
-    public static UsersFragment newInstance(String param1, String param2) {
-        return new UsersFragment();
-    }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -53,7 +49,7 @@ public class UsersFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         getActivity().setTitle(R.string.users);
 
         binding = FragmentUsersBinding.inflate(inflater, container, false);

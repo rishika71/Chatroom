@@ -1,6 +1,7 @@
 package com.example.chatroom.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Chatroom implements Serializable {
@@ -9,8 +10,25 @@ public class Chatroom implements Serializable {
     public int number;
     public String created_by;
     public Date created_at;
+    public ArrayList<String> viewers;
+
+    public ArrayList<String> getViewers() {
+        return viewers;
+    }
+
+    public void setViewers(ArrayList<String> viewers) {
+        this.viewers = viewers;
+    }
 
     public Chatroom() {
+    }
+
+    public void addViewer(String uid) {
+        this.viewers.add(uid);
+    }
+
+    public void removeViewer(String uid) {
+        this.viewers.remove(uid);
     }
 
     public int getNumber() {
@@ -30,7 +48,7 @@ public class Chatroom implements Serializable {
     }
 
     public Date getCreated_at() {
-        return created_at;
+        return (created_at == null ? new Date() : created_at);
     }
 
     public void setCreated_at(Date created_at) {

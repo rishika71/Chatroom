@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,9 +42,26 @@ public class ChatroomFragment extends Fragment {
 
     IChat am;
 
+    FirebaseAuth mAuth;
+
+    FirebaseUser cur_user;
+
     FirebaseFirestore db;
 
     Chatroom chatroom;
+
+    @Override
+    public void onStop() {
+        chatroom.removeViewer(cur_user.getUid());
+        HashMap<String, Object> upd = new HashMap<>();
+        upd.put("viewers", chatroom.getViewers());
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+            }
+        });
+        super.onStop();
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -69,6 +87,20 @@ public class ChatroomFragment extends Fragment {
         getActivity().setTitle("Chatroom " + chatroom.getNumber());
 
         db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        cur_user = mAuth.getCurrentUser();
+
+        chatroom.addViewer(cur_user.getUid());
+        HashMap<String, Object> upd = new HashMap<>();
+        upd.put("viewers", chatroom.getViewers());
+        am.toggleDialog(true);
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+            }
+        });
+
+        setViewerNames(chatroom.getViewers());
 
         binding = FragmentChatroomBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
@@ -106,16 +138,14 @@ public class ChatroomFragment extends Fragment {
             public void onClick(View v) {
                 String msg = binding.editTextTextPersonName.getText().toString();
                 if (msg.isEmpty()) {
-                    Toast.makeText(getContext(), "Please enter a message", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Send a message", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                FirebaseUser cur = mAuth.getCurrentUser();
                 HashMap<String, Object> chat = new HashMap<>();
                 chat.put("created_at", FieldValue.serverTimestamp());
                 chat.put("content", msg);
-                chat.put("owner", cur.getUid());
-                chat.put("display", cur.getDisplayName());
+                chat.put("owner", cur_user.getUid());
+                chat.put("display", cur_user.getDisplayName());
                 chat.put("likedBy", new ArrayList<>());
                 db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
@@ -135,7 +165,30 @@ public class ChatroomFragment extends Fragment {
         return view;
     }
 
+    public void setViewerNames(ArrayList users) {
+        users.remove(cur_user.getUid());
+        db.collection(Utils.DB_PROFILE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    String user_str = "Viewers - ";
+                    for (DocumentSnapshot snapshot : task.getResult()) {
+                        if (users.contains(snapshot.getId())) {
+                            user_str += snapshot.get("firstname") + " " + snapshot.get("lastname") + ", ";
+                        }
+                    }
+                    binding.textView6.setText(user_str.substring(0, user_str.length() - 2));
+                    am.toggleDialog(false);
+                } else {
+                    task.getException().printStackTrace();
+                }
+            }
+        });
+    }
+
     interface IChat {
+
+        void toggleDialog(boolean show);
 
     }
 }
