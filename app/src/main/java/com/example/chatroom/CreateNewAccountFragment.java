@@ -1,10 +1,17 @@
 package com.example.chatroom;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RadioButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,22 +19,14 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.provider.MediaStore;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-
 import com.example.chatroom.databinding.FragmentCreateNewAccountBinding;
+import com.example.chatroom.models.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -36,14 +35,14 @@ import com.google.firebase.storage.UploadTask;
 import java.util.HashMap;
 import java.util.UUID;
 
-import static android.app.Activity.RESULT_OK;
-
 public class CreateNewAccountFragment extends Fragment {
 
     private FirebaseAuth mAuth;
 
     final private String TAG = "demo";
     private static final int PICK_IMAGE = 100;
+
+    NavController navController;
 
     Uri imageUri;
     String fileName;
@@ -92,7 +91,7 @@ public class CreateNewAccountFragment extends Fragment {
 
         View view = binding.getRoot();
 
-        NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
+        navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
         //....Register Button......
         binding.registerButtonId.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +103,7 @@ public class CreateNewAccountFragment extends Fragment {
                 city = binding.createFragmentCityNameId.getText().toString();
                 email = binding.createFragmentEmailId.getText().toString();
                 password = binding.createFragmentPasswordId.getText().toString();
-                RadioButton radioButton = view.findViewById(binding.radioGroup.getCheckedRadioButtonId());
+                RadioButton radioButton = binding.getRoot().findViewById(binding.radioGroup.getCheckedRadioButtonId());
                 gender = radioButton.getText().toString();
 
                 if(firstName.isEmpty()){
@@ -126,11 +125,12 @@ public class CreateNewAccountFragment extends Fragment {
                             .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if(task.isSuccessful()){
-
-                                        //FirebaseUser user = mAuth.getCurrentUser(); //to get user's account details
+                                    if(task.isSuccessful()) {
                                         storeUserInfoToFirestore(firstName, lastName, city, gender, email, fileName);
-                                        navController.navigate(R.id.action_createNewAccountFragment_to_chatroomsFragmentNav);
+                                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(firstName + " " + lastName).build();
+                                        FirebaseUser user = mAuth.getCurrentUser();
+                                        user.updateProfile(profileUpdates);
 
                                     } else
                                         getAlertDialogBox(task.getException().getMessage());
@@ -202,13 +202,13 @@ public class CreateNewAccountFragment extends Fragment {
         data.put("email", email);
         data.put("photoref", fileName);
 
-        db.collection("profiles")
+        db.collection(Utils.DB_PROFILE)
                 .document(mAuth.getUid())
                 .set(data)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-
+                        navController.navigate(R.id.action_createNewAccountFragment_to_chatroomsFragmentNav);
                     }
                 });
     }

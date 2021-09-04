@@ -3,6 +3,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="login">LOGIN</string>
+    <string name="info">Info</string>
+    <string name="okay">Okay</string>
+    <string name="loading">Loading...</string>
     <string name="cancel">cancel</string>
     <string name="chatrooms">Chatrooms</string>
     <string name="email">Email</string>

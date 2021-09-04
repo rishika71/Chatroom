@@ -1,28 +1,23 @@
 package com.example.chatroom;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
 import com.example.chatroom.databinding.FragmentUserProfileBinding;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.jetbrains.annotations.NotNull;
 
 public class UserProfileFragment extends Fragment {
-
-    BottomNavigationView bottomNavigationView;
 
     FragmentUserProfileBinding binding;
 
@@ -43,10 +38,9 @@ public class UserProfileFragment extends Fragment {
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
-        bottomNavigationView = binding.bottomNavigation;
-        bottomNavigationView.setSelectedItemId(R.id.profileIcons);
+        binding.bottomNavigation.setSelectedItemId(R.id.profileIcons);
 
-        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+        binding.bottomNavigation.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
                 switch (item.getItemId()) {

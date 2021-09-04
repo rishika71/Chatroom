@@ -24,7 +24,7 @@
         android:id="@+id/chatroomsFragmentNav"
         android:name="com.example.chatroom.ChatroomsFragment"
         android:label="fragment_chatrooms"
-        tools:layout="@layout/fragment_chatrooms" >
+        tools:layout="@layout/fragment_chatrooms">
         <action
             android:id="@+id/action_chatroomsFragmentNav_to_loginFragmentNav"
             app:destination="@id/loginFragmentNav" />
@@ -34,6 +34,9 @@
         <action
             android:id="@+id/action_chatroomsFragmentNav_to_usersFragment"
             app:destination="@id/usersFragment" />
+        <action
+            android:id="@+id/action_chatroomsFragmentNav_to_chatroomFragment"
+            app:destination="@id/chatroomFragment" />
     </fragment>
     <fragment
         android:id="@+id/createNewAccountFragment"
@@ -86,4 +89,8 @@
             android:id="@+id/action_usersFragment_to_loginFragmentNav"
             app:destination="@id/loginFragmentNav" />
     </fragment>
+    <fragment
+        android:id="@+id/chatroomFragment"
+        android:name="com.example.chatroom.ChatroomFragment"
+        android:label="ChatroomFragment" />
 </navigation>
