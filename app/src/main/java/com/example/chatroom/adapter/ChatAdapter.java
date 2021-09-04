@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -49,7 +50,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
         Chat chat = chats.get(position);
 
         holder.binding.textView7.setText(chat.getDisplay());
-        holder.binding.textView8.setText(chat.getContent());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("h:m a");
+        holder.binding.textView8.setText(chat.getContent() + "           " + dateFormat.format(chat.getCreated_at()));
         holder.binding.textView9.setText(chat.getLikedBy().size() + " ♥");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
