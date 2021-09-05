@@ -2,6 +2,7 @@ package com.example.chatroom;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -74,6 +75,7 @@ public class UsersFragment extends Fragment {
                         User user = snapshot.toObject(User.class);
                         user.setId(snapshot.getId());
                         users.add(user);
+                        Log.d("DEMO", "onComplete: " + users);
                     }
                     ArrayAdapter<User> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, users);
                     binding.userList.setAdapter(adapter);

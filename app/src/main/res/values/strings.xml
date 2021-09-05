@@ -33,5 +33,8 @@
     <string name="profile">Profile</string>
     <string name="logout">Logout</string>
     <string name="userProfile">User Profile</string>
+    <string name="imagePick">Choose Image From:</string>
+    <string name="edit">Edit</string>
+    <string name="update">update</string>
 
 </resources>
