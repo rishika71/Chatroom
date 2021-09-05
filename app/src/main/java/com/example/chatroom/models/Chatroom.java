@@ -6,6 +6,7 @@ import java.util.Date;
 
 public class Chatroom implements Serializable {
 
+    public String name;
     public String id;
     public int number;
     public String created_by;
@@ -30,6 +31,15 @@ public class Chatroom implements Serializable {
     public void removeViewer(String uid) {
         this.viewers.remove(uid);
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 
     public int getNumber() {
         return number;

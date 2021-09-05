@@ -40,10 +40,11 @@ public class ChatroomAdapter extends RecyclerView.Adapter<ChatroomAdapter.UViewH
     public void onBindViewHolder(@NonNull UViewHolder holder, int position) {
         Chatroom chatroom = chatrooms.get(position);
 
-        int num = position + 1;
-        holder.binding.textView3.setText("ChatRoom " + num);
-        holder.binding.textView4.setText("Created: " + Utils.getDateString(chatroom.created_at));
-        holder.binding.textView5.setText("Creator: " + chatroom.created_by);
+        //int num = position + 1;
+       // holder.binding.textView3.setText("ChatRoom " + num);
+        holder.binding.textView3.setText(chatroom.getName());
+        holder.binding.textView4.setText("Created: " + Utils.getDateString(chatroom.getCreated_at()));
+        holder.binding.textView5.setText("Creator: " + chatroom.getCreated_by());
 
         holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override

@@ -84,7 +84,7 @@ public class ChatroomFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getActivity().setTitle("Chatroom " + chatroom.getNumber());
+        getActivity().setTitle("Chatroom " + chatroom.getName());
 
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
