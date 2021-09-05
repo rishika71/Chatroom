@@ -12,6 +12,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.chatroom.databinding.FragmentUserProfileBinding;
+import com.example.chatroom.models.User;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -20,6 +21,10 @@ import org.jetbrains.annotations.NotNull;
 public class UserProfileFragment extends Fragment {
 
     FragmentUserProfileBinding binding;
+
+    NavController navController;
+
+    User user;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,7 +36,7 @@ public class UserProfileFragment extends Fragment {
 
         View view = binding.getRoot();
 
-        NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
+        navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
         binding.bottomNavigation.setSelectedItemId(R.id.profileIcons);
 
@@ -54,6 +59,13 @@ public class UserProfileFragment extends Fragment {
 
                 }
                 return false;
+            }
+        });
+
+        binding.button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navController.navigate(R.id.action_userProfileFragment_to_editProfileFragment);
             }
         });
 

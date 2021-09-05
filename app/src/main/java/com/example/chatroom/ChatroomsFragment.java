@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.chatroom.adapter.ChatroomAdapter;
 import com.example.chatroom.databinding.FragmentChatroomsBinding;
 import com.example.chatroom.models.Chatroom;
+import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -60,6 +61,8 @@ public class ChatroomsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if (am.getUser() == null) throw new RuntimeException("User not found");
 
         getActivity().setTitle(R.string.chatrooms);
 
@@ -163,6 +166,8 @@ public class ChatroomsFragment extends Fragment {
     public interface IChatRoom {
 
         void toggleDialog(boolean show);
+
+        User getUser();
 
     }
 }

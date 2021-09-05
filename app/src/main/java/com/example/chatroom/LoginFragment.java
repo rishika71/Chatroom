@@ -1,6 +1,7 @@
 package com.example.chatroom;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,11 +14,15 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.chatroom.databinding.FragmentLoginBinding;
+import com.example.chatroom.models.User;
+import com.example.chatroom.models.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 public class LoginFragment extends Fragment {
@@ -29,16 +34,45 @@ public class LoginFragment extends Fragment {
 
     String email, password;
 
+    FirebaseUser currentUser;
+
+    ILogin am;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof ILogin) {
+            am = (ILogin) context;
+        } else {
+            throw new RuntimeException(context.toString());
+        }
+    }
 
     @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null)
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
-            navController.navigate(R.id.action_loginFragmentNav_to_chatroomsFragmentNav);
-        }
+        currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) login();
+    }
+
+    public void login() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(Utils.DB_PROFILE).document(currentUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot snapshot = task.getResult();
+                    User user = snapshot.toObject(User.class);
+                    user.setId(snapshot.getId());
+                    am.setUser(user);
+                    navController.navigate(R.id.action_loginFragmentNav_to_chatroomsFragmentNav);
+                } else {
+                    task.getException().printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
@@ -89,9 +123,9 @@ public class LoginFragment extends Fragment {
                             .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if(task.isSuccessful()){
-                                        navController.navigate(R.id.action_loginFragmentNav_to_chatroomsFragmentNav);
-
+                                    if(task.isSuccessful()) {
+                                        currentUser = mAuth.getCurrentUser();
+                                        login();
                                     } else{
                                         getAlertDialogBox(task.getException().getMessage());
                                     }
@@ -104,8 +138,14 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
+    interface ILogin {
 
-    public void getAlertDialogBox(String errorMessage){
+        void setUser(User user);
+
+    }
+
+
+    public void getAlertDialogBox(String errorMessage) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getResources().getString(R.string.errorMessage))

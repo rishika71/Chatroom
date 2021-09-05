@@ -3,6 +3,7 @@ package com.example.chatroom;
 import static android.app.Activity.RESULT_OK;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.chatroom.databinding.FragmentCreateNewAccountBinding;
+import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -50,10 +52,45 @@ public class CreateNewAccountFragment extends Fragment {
 
     FragmentCreateNewAccountBinding binding;
 
+    IRegister am;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof IRegister) {
+            am = (IRegister) context;
+        } else {
+            throw new RuntimeException(context.toString());
+        }
+    }
+
+    private void storeUserInfoToFirestore(String firstName, String lastName, String city, String gender, String email, String fileName) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("firstname", firstName);
+        data.put("lastname", lastName);
+        data.put("city", city);
+        data.put("gender", gender);
+        data.put("email", email);
+        data.put("photoref", fileName);
+
+        db.collection(Utils.DB_PROFILE)
+                .document(mAuth.getUid())
+                .set(data)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        am.setUser(new User(firstName, lastName, fileName, city, email, gender, mAuth.getUid()));
+                        navController.navigate(R.id.action_createNewAccountFragment_to_chatroomsFragmentNav);
+                    }
+                });
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE && data != null && resultCode == RESULT_OK){
+        if (requestCode == PICK_IMAGE && data != null && resultCode == RESULT_OK) {
             imageUri = data.getData();
             //imageView.setImageURI(imageUri);
 
@@ -186,25 +223,9 @@ public class CreateNewAccountFragment extends Fragment {
 
     }
 
-    private void storeUserInfoToFirestore(String firstName, String lastName, String city, String gender, String email, String fileName){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+    interface IRegister {
 
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("firstname", firstName);
-        data.put("lastname", lastName);
-        data.put("city", city);
-        data.put("gender", gender);
-        data.put("email", email);
-        data.put("photoref", fileName);
+        void setUser(User user);
 
-        db.collection(Utils.DB_PROFILE)
-                .document(mAuth.getUid())
-                .set(data)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        navController.navigate(R.id.action_createNewAccountFragment_to_chatroomsFragmentNav);
-                    }
-                });
     }
 }

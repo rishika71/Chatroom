@@ -8,7 +8,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
+import com.example.chatroom.GlideApp;
 import com.example.chatroom.R;
 import com.example.chatroom.databinding.ChatLayoutBinding;
 import com.example.chatroom.models.Chat;
@@ -54,7 +54,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
     public void onBindViewHolder(@NonNull UViewHolder holder, int position) {
         Chat chat = chats.get(position);
 
-        holder.binding.textView7.setText(chat.getDisplay());
         holder.binding.textView8.setText("> " + chat.getContent());
         holder.binding.textView10.setText(Utils.getDateString(chat.getCreated_at()));
         holder.binding.textView9.setText(chat.getLikedBy().size() + " ♥");
@@ -137,18 +136,18 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.get("photoRef") != null) {
-                        String photoRef = (String) documentSnapshot.get("photoRef");
-                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(photoRef);
-
-                        Glide.with(holder.binding.getRoot())
+                    if (documentSnapshot.get("photoref") != null) {
+                        String photoRef = (String) documentSnapshot.get("photoref");
+                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(chat.getOwner()).child(photoRef);
+                        GlideApp.with(holder.binding.getRoot())
                                 .load(storageReference)
                                 .into(holder.binding.imageView2);
                     } else {
-                        Glide.with(holder.binding.getRoot())
+                        GlideApp.with(holder.binding.getRoot())
                                 .load(R.drawable.profile_image)
                                 .into(holder.binding.imageView2);
                     }
+                    holder.binding.textView7.setText(documentSnapshot.get("firstname") + " " + documentSnapshot.get("lastname"));
                 } else {
                     task.getException().printStackTrace();
                 }

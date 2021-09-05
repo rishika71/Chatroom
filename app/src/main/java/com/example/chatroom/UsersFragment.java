@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,8 @@ public class UsersFragment extends Fragment {
 
     IUsers am;
 
+    NavController navController;
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -53,6 +56,8 @@ public class UsersFragment extends Fragment {
         getActivity().setTitle(R.string.users);
 
         binding = FragmentUsersBinding.inflate(inflater, container, false);
+
+        navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
         View view = binding.getRoot();
 
@@ -72,13 +77,20 @@ public class UsersFragment extends Fragment {
                     }
                     ArrayAdapter<User> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, users);
                     binding.userList.setAdapter(adapter);
+                    binding.userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            User user = users.get(position);
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable(Utils.DB_PROFILE, user);
+                            navController.navigate(R.id.action_usersFragment_to_viewUserFragment, bundle);
+                        }
+                    });
                 } else {
                     task.getException().printStackTrace();
                 }
             }
         });
-
-        NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
         binding.bottomNavigation.setSelectedItemId(R.id.usersIcon);
 

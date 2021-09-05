@@ -8,7 +8,7 @@ public class Chat implements Serializable {
 
     public String id;
 
-    public String content, owner, display;
+    public String content, owner;
 
     public Date created_at;
 
@@ -57,14 +57,6 @@ public class Chat implements Serializable {
         this.owner = owner;
     }
 
-    public String getDisplay() {
-        return display;
-    }
-
-    public void setDisplay(String display) {
-        this.display = display;
-    }
-
     public Date getCreated_at() {
         return (created_at == null ? new Date() : created_at);
     }
@@ -79,7 +71,6 @@ public class Chat implements Serializable {
                 "id='" + id + '\'' +
                 ", content='" + content + '\'' +
                 ", owner='" + owner + '\'' +
-                ", display='" + display + '\'' +
                 ", created_at=" + created_at +
                 ", likedBy=" + likedBy +
                 '}';

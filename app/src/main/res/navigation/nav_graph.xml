@@ -63,7 +63,7 @@
         android:id="@+id/userProfileFragment"
         android:name="com.example.chatroom.UserProfileFragment"
         android:label="fragment_user_profile"
-        tools:layout="@layout/fragment_user_profile" >
+        tools:layout="@layout/fragment_user_profile">
         <action
             android:id="@+id/action_userProfileFragment_to_chatroomsFragmentNav"
             app:destination="@id/chatroomsFragmentNav" />
@@ -73,12 +73,15 @@
         <action
             android:id="@+id/action_userProfileFragment_to_loginFragmentNav"
             app:destination="@id/loginFragmentNav" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
     </fragment>
     <fragment
         android:id="@+id/usersFragment"
         android:name="com.example.chatroom.UsersFragment"
         android:label="fragment_users"
-        tools:layout="@layout/fragment_users" >
+        tools:layout="@layout/fragment_users">
         <action
             android:id="@+id/action_usersFragment_to_chatroomsFragmentNav"
             app:destination="@id/chatroomsFragmentNav" />
@@ -88,9 +91,22 @@
         <action
             android:id="@+id/action_usersFragment_to_loginFragmentNav"
             app:destination="@id/loginFragmentNav" />
+        <action
+            android:id="@+id/action_usersFragment_to_viewUserFragment"
+            app:destination="@id/viewUserFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatroomFragment"
         android:name="com.example.chatroom.ChatroomFragment"
         android:label="ChatroomFragment" />
+    <fragment
+        android:id="@+id/viewUserFragment"
+        android:name="com.example.chatroom.ViewUserFragment"
+        android:label="fragment_view_user"
+        tools:layout="@layout/fragment_view_user" />
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.chatroom.EditProfileFragment"
+        android:label="fragment_edit_profile"
+        tools:layout="@layout/fragment_edit_profile" />
 </navigation>

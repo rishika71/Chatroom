@@ -1,10 +1,22 @@
 package com.example.chatroom.models;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
 
     String firstname, lastname, photoref, city, email, gender, id;
 
     public User() {
+    }
+
+    public User(String firstname, String lastname, String photoref, String city, String email, String gender, String id) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.photoref = photoref;
+        this.city = city;
+        this.email = email;
+        this.gender = gender;
+        this.id = id;
     }
 
     @Override

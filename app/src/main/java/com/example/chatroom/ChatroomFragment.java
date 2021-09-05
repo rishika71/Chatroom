@@ -145,7 +145,6 @@ public class ChatroomFragment extends Fragment {
                 chat.put("created_at", FieldValue.serverTimestamp());
                 chat.put("content", msg);
                 chat.put("owner", cur_user.getUid());
-                chat.put("display", cur_user.getDisplayName());
                 chat.put("likedBy", new ArrayList<>());
                 db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
