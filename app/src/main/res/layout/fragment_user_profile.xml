@@ -25,12 +25,14 @@
         android:orientation="vertical"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/userProfileImageView"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:src="@drawable/profile"
@@ -58,7 +60,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
-                        
+
                         <TextView
                             android:id="@+id/nameTextViewId"
                             android:layout_width="wrap_content"
@@ -84,8 +86,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Gender"
-                        android:textSize="15sp"
+                        android:textSize="20sp"
                         android:textStyle="italic"
+                        android:textColor="@color/black"
                         android:layout_marginTop="5dp"/>
 
                     <TextView
@@ -100,8 +103,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="City"
-                        android:textSize="15sp"
+                        android:textSize="20sp"
                         android:textStyle="italic"
+                        android:textColor="@color/black"
                         android:layout_marginTop="5dp"/>
 
 
@@ -118,17 +122,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Email"
-                    android:textSize="15sp"
+                    android:textSize="20sp"
                     android:textStyle="italic"
+                    android:textColor="@color/black"
                     android:layout_marginTop="5dp" />
 
                 <Button
                     android:id="@+id/button2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="-20dp"
-                    android:layout_marginLeft="-20dp"
-                    android:text="Edit Profile" />
+                    android:layout_marginStart="120dp"
+                    android:layout_marginLeft="70dp"
+                    android:layout_marginTop="40dp"
+                    android:text="@string/edit" />
 
 
             </LinearLayout>

@@ -1,5 +1,6 @@
 package com.example.chatroom;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -15,6 +16,8 @@ import com.example.chatroom.databinding.FragmentUserProfileBinding;
 import com.example.chatroom.models.User;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -24,8 +27,17 @@ public class UserProfileFragment extends Fragment {
 
     NavController navController;
 
-    User user;
+    IUserProfile am;
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof EditProfileFragment.IEditUser) {
+            am = (IUserProfile) context;
+        } else {
+            throw new RuntimeException(context.toString());
+        }
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -35,6 +47,23 @@ public class UserProfileFragment extends Fragment {
         binding = FragmentUserProfileBinding.inflate(inflater, container, false);
 
         View view = binding.getRoot();
+
+        User user = am.getUser();
+        binding.nameTextViewId.setText(user.getFirstname().toUpperCase() + " " + user.getLastname().toUpperCase());
+        binding.genderTextViewId.setText(user.getGender());
+        binding.cityTextViewId.setText(user.getCity());
+        binding.emailTextViewId.setText(user.getEmail());
+
+        if (user.getPhotoref() != null) {
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(user.getId()).child(user.getPhotoref());
+            GlideApp.with(view)
+                    .load(storageReference)
+                    .into(binding.userProfileImageView);
+        } else {
+            GlideApp.with(view)
+                    .load(R.drawable.profile_image)
+                    .into(binding.userProfileImageView);
+        }
 
         navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
@@ -62,6 +91,7 @@ public class UserProfileFragment extends Fragment {
             }
         });
 
+        //...Editing profile
         binding.button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,5 +101,13 @@ public class UserProfileFragment extends Fragment {
 
         return view;
 
+    }
+
+    interface IUserProfile {
+        void alert(String msg);
+
+        User getUser();
+
+        void setUser(User user);
     }
 }

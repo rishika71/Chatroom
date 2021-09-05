@@ -6,9 +6,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -42,7 +46,8 @@ public class CreateNewAccountFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     final private String TAG = "demo";
-    private static final int PICK_IMAGE = 100;
+    private static final int PICK_IMAGE_GALLERY = 100;
+    private static final int PICK_IMAGE_CAMERA = 101;
 
     NavController navController;
 
@@ -53,6 +58,28 @@ public class CreateNewAccountFragment extends Fragment {
     FragmentCreateNewAccountBinding binding;
 
     IRegister am;
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_GALLERY && data != null && resultCode == RESULT_OK) {
+            imageUri = data.getData();
+            binding.userImage.setImageURI(imageUri);
+        }
+        else if (requestCode == PICK_IMAGE_CAMERA && data != null && resultCode == RESULT_OK) {
+
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            binding.userImage.setImageBitmap(imageBitmap);
+
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            String path = MediaStore.Images.Media.insertImage(getContext().getContentResolver(), imageBitmap, "Title", null);
+            imageUri =  Uri.parse(path);
+
+        }
+
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -88,32 +115,6 @@ public class CreateNewAccountFragment extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE && data != null && resultCode == RESULT_OK) {
-            imageUri = data.getData();
-            //imageView.setImageURI(imageUri);
-
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-
-            fileName = UUID.randomUUID().toString() + ".jpg";
-
-            storageReference.child(mAuth.getUid()).child(fileName)
-                    .putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                    if(task.isSuccessful()){
-                    }
-
-                }
-            });
-
-
-        }
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -122,6 +123,8 @@ public class CreateNewAccountFragment extends Fragment {
         binding = FragmentCreateNewAccountBinding.inflate(inflater, container, false);
 
         View view = binding.getRoot();
+
+        binding.userImage.setImageResource(R.drawable.profile_image);
 
         navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
@@ -158,11 +161,18 @@ public class CreateNewAccountFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()) {
+
+                                        fileName = UUID.randomUUID().toString() + ".jpg";
+
                                         storeUserInfoToFirestore(firstName, lastName, city, gender, email, fileName);
                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                                 .setDisplayName(firstName + " " + lastName).build();
                                         FirebaseUser user = mAuth.getCurrentUser();
                                         user.updateProfile(profileUpdates);
+
+                                        //...Store image in firebase storage
+                                        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                                        storageReference.child(user.getUid()).child(fileName).putFile(imageUri);
 
                                     } else
                                         getAlertDialogBox(task.getException().getMessage());
@@ -186,23 +196,9 @@ public class CreateNewAccountFragment extends Fragment {
         binding.userImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-                startActivityForResult(gallery, PICK_IMAGE);
+                selectImage();
             }
         });
-
-        //......Select Images from gallery........
-//        binding.userImage.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent();
-//                intent.setType("image/*");
-//                intent.setAction(Intent.ACTION_GET_CONTENT);
-//                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
-//            }
-//        });
-
-
 
         return view;
     }
@@ -223,9 +219,33 @@ public class CreateNewAccountFragment extends Fragment {
 
     }
 
+    //....Select Image from gallery or camera
+    public void selectImage() {
+        final CharSequence[] options = {"Gallery", "Camera"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.imagePick)
+                .setItems(options, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        if(options[which].equals("Gallery")){
+                            dialog.dismiss();
+                            Intent takePictureFromGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            startActivityForResult(takePictureFromGallery, PICK_IMAGE_GALLERY);
+                        }else if(options[which].equals("Camera")){
+                            dialog.dismiss();
+                            Intent takePictureFromCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            startActivityForResult(takePictureFromCamera, PICK_IMAGE_CAMERA);
+                        }
+                    }
+                });
+        builder.create().show();
+    }
+
+
+
     interface IRegister {
 
         void setUser(User user);
-
     }
 }
