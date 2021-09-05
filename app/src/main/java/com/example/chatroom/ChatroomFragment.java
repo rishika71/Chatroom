@@ -165,7 +165,6 @@ public class ChatroomFragment extends Fragment {
     }
 
     public void setViewerNames(ArrayList users) {
-        users.remove(cur_user.getUid());
         db.collection(Utils.DB_PROFILE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
