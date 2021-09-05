@@ -1,59 +1,100 @@
 package com.example.chatroom;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.chatroom.databinding.FragmentUsersBinding;
+import com.example.chatroom.models.User;
+import com.example.chatroom.models.Utils;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 
 
 public class UsersFragment extends Fragment {
 
-    BottomNavigationView bottomNavigationView;
+    FragmentUsersBinding binding;
 
-    public UsersFragment() {
-        // Required empty public constructor
-    }
+    IUsers am;
 
-
-    public static UsersFragment newInstance(String param1, String param2) {
-        UsersFragment fragment = new UsersFragment();
-
-        return fragment;
-    }
+    NavController navController;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof IUsers) {
+            am = (IUsers) context;
+        } else {
+            throw new RuntimeException(context.toString());
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         getActivity().setTitle(R.string.users);
 
-        View view = inflater.inflate(R.layout.fragment_users, container, false);
+        binding = FragmentUsersBinding.inflate(inflater, container, false);
 
-        NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
+        navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
-        bottomNavigationView = view.findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.usersIcon);
+        View view = binding.getRoot();
 
-        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        am.toggleDialog(true);
+        CollectionReference ddb = db.collection(Utils.DB_PROFILE);
+        ddb.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                am.toggleDialog(false);
+                if (task.isSuccessful()) {
+                    ArrayList<User> users = new ArrayList<>();
+                    for (QueryDocumentSnapshot snapshot : task.getResult()) {
+                        User user = snapshot.toObject(User.class);
+                        user.setId(snapshot.getId());
+                        users.add(user);
+                    }
+                    ArrayAdapter<User> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, users);
+                    binding.userList.setAdapter(adapter);
+                    binding.userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            User user = users.get(position);
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable(Utils.DB_PROFILE, user);
+                            navController.navigate(R.id.action_usersFragment_to_viewUserFragment, bundle);
+                        }
+                    });
+                } else {
+                    task.getException().printStackTrace();
+                }
+            }
+        });
+
+        binding.bottomNavigation.setSelectedItemId(R.id.usersIcon);
+
+        binding.bottomNavigation.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -76,5 +117,11 @@ public class UsersFragment extends Fragment {
         });
 
         return view;
+    }
+
+    interface IUsers {
+
+        void toggleDialog(boolean show);
+
     }
 }

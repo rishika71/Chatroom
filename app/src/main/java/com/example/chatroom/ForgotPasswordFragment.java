@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.chatroom.databinding.FragmentForgotPasswordBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -25,35 +26,25 @@ public class ForgotPasswordFragment extends Fragment {
     final private String TAG = "demo";
     private FirebaseAuth mAuth;
 
-    TextInputEditText emailEditText;
-
-    public ForgotPasswordFragment() {
-        // Required empty public constructor
-    }
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    FragmentForgotPasswordBinding binding;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         getActivity().setTitle(R.string.forgotPassword);
 
-        View view = inflater.inflate(R.layout.fragment_forgot_password, container, false);
+        binding = FragmentForgotPasswordBinding.inflate(inflater, container, false);
 
-        emailEditText = view.findViewById(R.id.emailTextFieldId);
+        View view = binding.getRoot();
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
-        view.findViewById(R.id.resetPasswordButtonId).setOnClickListener(new View.OnClickListener() {
+        binding.resetPasswordButtonId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mAuth = FirebaseAuth.getInstance();
-                String emailAddress = emailEditText.getText().toString();
+                String emailAddress = binding.emailTextFieldId.getText().toString();
 
                 if(!emailAddress.isEmpty()){
                     mAuth.sendPasswordResetEmail(emailAddress)
@@ -76,7 +67,7 @@ public class ForgotPasswordFragment extends Fragment {
         });
 
         //....Cancel Button......
-        view.findViewById(R.id.cancelResetPasswordId).setOnClickListener(new View.OnClickListener() {
+        binding.cancelResetPasswordId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 navController.navigate(R.id.action_forgotPasswordFragment_to_loginFragmentNav);
