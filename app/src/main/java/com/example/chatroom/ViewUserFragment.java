@@ -49,11 +49,11 @@ public class ViewUserFragment extends Fragment {
 
         NavController navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
-        binding.textView11.setText("First Name - " + user.getFirstname());
-        binding.textView12.setText("Last Name - " + user.getLastname());
-        binding.textView13.setText("Email - " + user.getEmail());
-        binding.textView14.setText("Gender - " + user.getGender());
-        binding.textView15.setText("City - " + user.getCity());
+        binding.textView11.setText(user.getFirstname());
+        binding.textView12.setText(user.getLastname());
+        binding.textView13.setText(user.getGender());
+        binding.textView14.setText(user.getCity());
+        binding.textView15.setText(user.getEmail());
 
         binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
