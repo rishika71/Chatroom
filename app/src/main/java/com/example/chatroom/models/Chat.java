@@ -8,7 +8,23 @@ public class Chat implements Serializable {
 
     public String id;
 
-    public String content, owner;
+    public String content, owner, ownerId, ownerRef;
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getOwnerRef() {
+        return ownerRef;
+    }
+
+    public void setOwnerRef(String ownerRef) {
+        this.ownerRef = ownerRef;
+    }
 
     public Date created_at;
 

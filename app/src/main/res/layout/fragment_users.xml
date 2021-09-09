@@ -20,11 +20,10 @@
         app:menu="@menu/bottom_navigation_menu"
         tools:ignore="MissingConstraints" />
 
-    <ListView
-        android:id="@+id/user_list"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/usersView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="2dp"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

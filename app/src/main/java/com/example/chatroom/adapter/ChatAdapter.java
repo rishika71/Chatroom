@@ -19,7 +19,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -54,6 +53,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
     public void onBindViewHolder(@NonNull UViewHolder holder, int position) {
         Chat chat = chats.get(position);
 
+        holder.binding.textView7.setText(chat.getOwner());
         holder.binding.textView8.setText("> " + chat.getContent());
         holder.binding.textView10.setText(Utils.getDateString(chat.getCreated_at()));
         holder.binding.textView9.setText(chat.getLikedBy().size() + " ♥");
@@ -68,7 +68,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
         }
 
         holder.binding.imageView3.setVisibility(View.GONE);
-        if (chat.owner.equals(cur_user.getUid())) {
+        if (chat.getOwnerId().equals(cur_user.getUid())) {
             holder.binding.imageView.setVisibility(View.GONE);
             holder.binding.imageView3.setVisibility(View.VISIBLE);
         }
@@ -131,28 +131,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             }
         });
 
-        db.collection(Utils.DB_PROFILE).document(chat.getOwner()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.get("photoref") != null) {
-                        String photoRef = (String) documentSnapshot.get("photoref");
-                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(chat.getOwner()).child(photoRef);
-                        GlideApp.with(holder.binding.getRoot())
-                                .load(storageReference)
-                                .into(holder.binding.imageView2);
-                    } else {
-                        GlideApp.with(holder.binding.getRoot())
-                                .load(R.drawable.profile_image)
-                                .into(holder.binding.imageView2);
-                    }
-                    holder.binding.textView7.setText(documentSnapshot.get("firstname") + " " + documentSnapshot.get("lastname"));
-                } else {
-                    task.getException().printStackTrace();
-                }
-            }
-        });
+        if (chat.getOwnerRef() != null) {
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(chat.getOwnerId()).child(chat.getOwnerRef());
+            GlideApp.with(holder.binding.getRoot())
+                    .load(storageReference)
+                    .into(holder.binding.imageView2);
+        } else {
+            GlideApp.with(holder.binding.getRoot())
+                    .load(R.drawable.profile_image)
+                    .into(holder.binding.imageView2);
+        }
 
     }
 
