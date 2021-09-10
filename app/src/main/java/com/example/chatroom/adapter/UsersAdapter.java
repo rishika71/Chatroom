@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -54,13 +53,12 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UViewHolder>
                     .into(holder.binding.imageView6);
         }
 
-        NavController navController = Navigation.findNavController(holder.itemView);
         holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(Utils.DB_PROFILE, user);
-                navController.navigate(R.id.action_usersFragment_to_viewUserFragment, bundle);
+                Navigation.findNavController(holder.itemView).navigate(R.id.action_usersFragment_to_viewUserFragment, bundle);
             }
         });
 

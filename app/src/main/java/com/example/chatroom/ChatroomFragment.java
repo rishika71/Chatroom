@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,6 +35,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class ChatroomFragment extends Fragment {
@@ -90,7 +92,7 @@ public class ChatroomFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         cur_user = mAuth.getCurrentUser();
 
-        chatroom.addViewer(cur_user.getDisplayName());
+        chatroom.addViewer(cur_user.getUid(), cur_user.getDisplayName());
         HashMap<String, Object> upd = new HashMap<>();
         upd.put("viewers", chatroom.getViewers());
         am.toggleDialog(true);
@@ -100,10 +102,29 @@ public class ChatroomFragment extends Fragment {
             }
         });
 
-        setViewerNames(chatroom.getViewers());
-
         binding = FragmentChatroomBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
+
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (value == null) {
+                    return;
+                }
+                chatroom.setViewers((HashMap<String, String>) value.get("viewers"));
+                StringBuilder user_str = new StringBuilder("Viewers - ");
+                for (Map.Entry<String, String> s :
+                        chatroom.getViewers().entrySet())
+                    user_str.append(s.getValue()).append(", ");
+                binding.textView6.setText(user_str.substring(0, user_str.length() - 2));
+            }
+        });
+
 
         binding.chatsView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
@@ -166,14 +187,6 @@ public class ChatroomFragment extends Fragment {
         });
 
         return view;
-    }
-
-    public void setViewerNames(ArrayList<String> users) {
-        StringBuilder user_str = new StringBuilder("Viewers - ");
-        for (String s : users) {
-            user_str.append(s).append(", ");
-        }
-        binding.textView6.setText(user_str.substring(0, user_str.length() - 2));
     }
 
     interface IChat {

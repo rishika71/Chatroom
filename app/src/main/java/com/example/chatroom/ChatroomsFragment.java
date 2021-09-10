@@ -1,11 +1,9 @@
 package com.example.chatroom;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -156,7 +154,7 @@ public class ChatroomsFragment extends Fragment {
                             chatroom.put("name",newChatroomName );
                             chatroom.put("created_at", FieldValue.serverTimestamp());
                             chatroom.put("created_by", cur.getDisplayName());
-                            chatroom.put("viewers", new ArrayList<>());
+                            chatroom.put("viewers", new HashMap<>());
                             am.toggleDialog(true);
                             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
