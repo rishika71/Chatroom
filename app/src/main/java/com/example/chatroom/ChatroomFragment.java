@@ -17,6 +17,7 @@ import com.example.chatroom.adapter.ChatAdapter;
 import com.example.chatroom.databinding.FragmentChatroomBinding;
 import com.example.chatroom.models.Chat;
 import com.example.chatroom.models.Chatroom;
+import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,6 +35,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class ChatroomFragment extends Fragment {
@@ -90,7 +92,7 @@ public class ChatroomFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         cur_user = mAuth.getCurrentUser();
 
-        chatroom.addViewer(cur_user.getUid());
+        chatroom.addViewer(cur_user.getUid(), cur_user.getDisplayName());
         HashMap<String, Object> upd = new HashMap<>();
         upd.put("viewers", chatroom.getViewers());
         am.toggleDialog(true);
@@ -100,10 +102,29 @@ public class ChatroomFragment extends Fragment {
             }
         });
 
-        setViewerNames(chatroom.getViewers());
-
         binding = FragmentChatroomBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
+
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (value == null) {
+                    return;
+                }
+                chatroom.setViewers((HashMap<String, String>) value.get("viewers"));
+                StringBuilder user_str = new StringBuilder("Viewers - ");
+                for (Map.Entry<String, String> s :
+                        chatroom.getViewers().entrySet())
+                    user_str.append(s.getValue()).append(", ");
+                binding.textView6.setText(user_str.substring(0, user_str.length() - 2));
+            }
+        });
+
 
         binding.chatsView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
@@ -116,6 +137,7 @@ public class ChatroomFragment extends Fragment {
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).orderBy("created_at", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                am.toggleDialog(false);
                 if (error != null) {
                     Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
                     return;
@@ -133,6 +155,7 @@ public class ChatroomFragment extends Fragment {
             }
         });
 
+        User user = am.getUser();
         binding.floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,7 +167,9 @@ public class ChatroomFragment extends Fragment {
                 HashMap<String, Object> chat = new HashMap<>();
                 chat.put("created_at", FieldValue.serverTimestamp());
                 chat.put("content", msg);
-                chat.put("owner", cur_user.getUid());
+                chat.put("owner", cur_user.getDisplayName());
+                chat.put("ownerRef", user.getPhotoref());
+                chat.put("ownerId", cur_user.getUid());
                 chat.put("likedBy", new ArrayList<>());
                 db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
@@ -164,29 +189,11 @@ public class ChatroomFragment extends Fragment {
         return view;
     }
 
-    public void setViewerNames(ArrayList users) {
-        db.collection(Utils.DB_PROFILE).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    String user_str = "Viewers - ";
-                    for (DocumentSnapshot snapshot : task.getResult()) {
-                        if (users.contains(snapshot.getId())) {
-                            user_str += snapshot.get("firstname") + " " + snapshot.get("lastname") + ", ";
-                        }
-                    }
-                    binding.textView6.setText(user_str.substring(0, user_str.length() - 2));
-                    am.toggleDialog(false);
-                } else {
-                    task.getException().printStackTrace();
-                }
-            }
-        });
-    }
-
     interface IChat {
 
         void toggleDialog(boolean show);
+
+        User getUser();
 
     }
 }

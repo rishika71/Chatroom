@@ -2,19 +2,19 @@ package com.example.chatroom;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.chatroom.adapter.UsersAdapter;
 import com.example.chatroom.databinding.FragmentUsersBinding;
 import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
@@ -62,6 +62,14 @@ public class UsersFragment extends Fragment {
 
         View view = binding.getRoot();
 
+        binding.usersView.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        binding.usersView.setLayoutManager(llm);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(binding.usersView.getContext(),
+                llm.getOrientation());
+        binding.usersView.addItemDecoration(dividerItemDecoration);
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         am.toggleDialog(true);
         CollectionReference ddb = db.collection(Utils.DB_PROFILE);
@@ -75,19 +83,8 @@ public class UsersFragment extends Fragment {
                         User user = snapshot.toObject(User.class);
                         user.setId(snapshot.getId());
                         users.add(user);
-                        Log.d("DEMO", "onComplete: " + users);
                     }
-                    ArrayAdapter<User> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, users);
-                    binding.userList.setAdapter(adapter);
-                    binding.userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            User user = users.get(position);
-                            Bundle bundle = new Bundle();
-                            bundle.putSerializable(Utils.DB_PROFILE, user);
-                            navController.navigate(R.id.action_usersFragment_to_viewUserFragment, bundle);
-                        }
-                    });
+                    binding.usersView.setAdapter(new UsersAdapter(users));
                 } else {
                     task.getException().printStackTrace();
                 }

@@ -1,8 +1,8 @@
 package com.example.chatroom.models;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class Chatroom implements Serializable {
 
@@ -11,21 +11,21 @@ public class Chatroom implements Serializable {
     public int number;
     public String created_by;
     public Date created_at;
-    public ArrayList<String> viewers;
+    public HashMap<String, String> viewers;
 
-    public ArrayList<String> getViewers() {
+    public HashMap<String, String> getViewers() {
         return viewers;
     }
 
-    public void setViewers(ArrayList<String> viewers) {
+    public void setViewers(HashMap<String, String> viewers) {
         this.viewers = viewers;
     }
 
     public Chatroom() {
     }
 
-    public void addViewer(String uid) {
-        this.viewers.add(uid);
+    public void addViewer(String uid, String name) {
+        this.viewers.put(uid, name);
     }
 
     public void removeViewer(String uid) {
