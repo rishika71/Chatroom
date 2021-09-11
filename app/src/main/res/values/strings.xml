@@ -36,5 +36,7 @@
     <string name="imagePick">Choose Image From:</string>
     <string name="edit">Edit</string>
     <string name="update">update</string>
+    <string name="requestRide">Request Ride</string>
+    <string name="api_key">AIzaSyBerQrC4OgEY2u-BR4daPzq5ke4ktgjx6Q</string>
 
 </resources>

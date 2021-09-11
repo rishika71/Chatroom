@@ -1,15 +1,24 @@
 package com.example.chatroom;
 
+import android.app.ActionBar;
+import android.app.FragmentBreadCrumbs;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -19,6 +28,7 @@ import com.example.chatroom.models.Chat;
 import com.example.chatroom.models.Chatroom;
 import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,6 +50,8 @@ import java.util.Map;
 
 public class ChatroomFragment extends Fragment {
 
+    final private String TAG = "demo";
+
     FragmentChatroomBinding binding;
 
     IChat am;
@@ -51,6 +63,8 @@ public class ChatroomFragment extends Fragment {
     FirebaseFirestore db;
 
     Chatroom chatroom;
+
+    NavController navController;
 
     @Override
     public void onStop() {
@@ -78,6 +92,7 @@ public class ChatroomFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             chatroom = (Chatroom) getArguments().getSerializable(Utils.DB_CHATROOM);
         }
@@ -86,8 +101,8 @@ public class ChatroomFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getActivity().setTitle("Chatroom " + chatroom.getName());
 
+        getActivity().setTitle("Chatroom " + chatroom.getName());
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         cur_user = mAuth.getCurrentUser();
@@ -104,7 +119,6 @@ public class ChatroomFragment extends Fragment {
 
         binding = FragmentChatroomBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
 
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -196,4 +210,25 @@ public class ChatroomFragment extends Fragment {
         User getUser();
 
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu, menu);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_request_ride:
+                Log.d(TAG, "onOptionsItemSelected:");
+                navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
+                navController.navigate(R.id.action_chatroomFragment_to_mapsFragment);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 }

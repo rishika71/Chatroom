@@ -98,7 +98,11 @@
     <fragment
         android:id="@+id/chatroomFragment"
         android:name="com.example.chatroom.ChatroomFragment"
-        android:label="ChatroomFragment" />
+        android:label="ChatroomFragment" >
+        <action
+            android:id="@+id/action_chatroomFragment_to_mapsFragment"
+            app:destination="@id/mapsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/viewUserFragment"
         android:name="com.example.chatroom.ViewUserFragment"
@@ -109,4 +113,9 @@
         android:name="com.example.chatroom.EditProfileFragment"
         android:label="fragment_edit_profile"
         tools:layout="@layout/fragment_edit_profile" />
+    <fragment
+        android:id="@+id/mapsFragment"
+        android:name="com.example.chatroom.MapsFragment"
+        android:label="fragment_maps"
+        tools:layout="@layout/fragment_maps" />
 </navigation>
