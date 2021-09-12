@@ -6,9 +6,23 @@ import java.util.Date;
 
 public class Chat implements Serializable {
 
+    public static final int CHAT_MESSAGE = 1;
+    public static final int CHAT_LOCATION = 2;
+    public static final int CHAT_REQUEST = 3;
+
     public String id;
 
     public String content, owner, ownerId, ownerRef;
+
+    public int chatType;
+
+    public int getChatType() {
+        return chatType;
+    }
+
+    public void setChatType(int chatType) {
+        this.chatType = chatType;
+    }
 
     public String getOwnerId() {
         return ownerId;

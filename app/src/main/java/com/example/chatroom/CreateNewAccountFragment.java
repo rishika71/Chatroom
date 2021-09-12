@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +33,8 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -162,17 +159,21 @@ public class CreateNewAccountFragment extends Fragment {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()) {
 
-                                        fileName = UUID.randomUUID().toString() + ".jpg";
-
-                                        storeUserInfoToFirestore(firstName, lastName, city, gender, email, fileName);
                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                                 .setDisplayName(firstName + " " + lastName).build();
                                         FirebaseUser user = mAuth.getCurrentUser();
                                         user.updateProfile(profileUpdates);
 
                                         //...Store image in firebase storage
-                                        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-                                        storageReference.child(user.getUid()).child(fileName).putFile(imageUri);
+                                        if (imageUri != null) {
+                                            fileName = UUID.randomUUID().toString() + ".jpg";
+
+                                            storeUserInfoToFirestore(firstName, lastName, city, gender, email, fileName);
+                                            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                                            storageReference.child(user.getUid()).child(fileName).putFile(imageUri);
+                                        } else {
+                                            storeUserInfoToFirestore(firstName, lastName, city, gender, email, null);
+                                        }
 
                                     } else
                                         getAlertDialogBox(task.getException().getMessage());
