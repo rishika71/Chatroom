@@ -1,6 +1,7 @@
 package com.example.chatroom.adapter;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,24 +65,25 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
     public void onBindViewHolder(@NonNull UViewHolder holder, int position) {
         Chat chat = chats.get(position);
 
-        holder.binding.textView7.setText(chat.getOwner());
-        holder.binding.textView8.setText("> " + chat.getContent());
-        holder.binding.textView10.setText(Utils.getDateString(chat.getCreated_at()));
+        binding = holder.binding;
+
+        binding.textView7.setText(chat.getOwnerName());
+        binding.textView10.setText(Utils.getDateString(chat.getCreated_at()));
 
         if (chat.getOwnerRef() != null) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(chat.getOwnerId()).child(chat.getOwnerRef());
-            GlideApp.with(holder.binding.getRoot())
+            GlideApp.with(binding.getRoot())
                     .load(storageReference)
-                    .into(holder.binding.imageView2);
+                    .into(binding.imageView2);
         } else {
-            GlideApp.with(holder.binding.getRoot())
+            GlideApp.with(binding.getRoot())
                     .load(R.drawable.profile_image)
-                    .into(holder.binding.imageView2);
+                    .into(binding.imageView2);
         }
 
-        holder.binding.imageView3.setVisibility(View.GONE);
+        binding.imageView3.setVisibility(View.GONE);
 
-        holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
+        binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             }
@@ -89,17 +91,19 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
 
         if (chat.getChatType() == Chat.CHAT_MESSAGE) {
 
-            holder.binding.textView9.setText(chat.getLikedBy().size() + " ♥");
+            binding.textView8.setText("-> " + chat.getContent());
+
+            binding.textView9.setText(chat.getLikedBy().size() + " ♥");
 
             holder.liked = chat.getLikedBy().contains(cur_user.getUid());
-            if (holder.liked) holder.binding.imageView.setImageResource(R.drawable.like_favorite);
+            if (holder.liked) binding.imageView.setImageResource(R.drawable.like_favorite);
 
             if (chat.getOwnerId().equals(cur_user.getUid())) {
-                holder.binding.imageView.setVisibility(View.GONE);
-                holder.binding.imageView3.setVisibility(View.VISIBLE);
+                binding.imageView.setVisibility(View.GONE);
+                binding.imageView3.setVisibility(View.VISIBLE);
             }
 
-            holder.binding.imageView.setOnClickListener(new View.OnClickListener() {
+            binding.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (holder.liked) {
@@ -111,7 +115,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 am.toggleDialog(false);
-                                holder.binding.imageView.setImageResource(R.drawable.like_not_favorite);
+                                binding.imageView.setImageResource(R.drawable.like_not_favorite);
                                 holder.liked = false;
                             }
                         });
@@ -124,7 +128,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 am.toggleDialog(false);
-                                holder.binding.imageView.setImageResource(R.drawable.like_favorite);
+                                binding.imageView.setImageResource(R.drawable.like_favorite);
                                 holder.liked = true;
                             }
                         });
@@ -133,23 +137,25 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             });
 
         } else if (chat.getChatType() == Chat.CHAT_LOCATION) {
-            holder.binding.imageView.setVisibility(View.GONE);
+            binding.imageView.setVisibility(View.GONE);
             if (chat.getOwnerId().equals(cur_user.getUid())) {
-                holder.binding.imageView3.setVisibility(View.VISIBLE);
+                binding.imageView3.setVisibility(View.VISIBLE);
             }
-            holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
+            binding.textView8.setText("Sent Location - \n" + chat.getContent());
+            binding.textView8.setTypeface(null, Typeface.BOLD);
+            binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String[] loc = chat.getContent().split("\n");
-                    String url = "http://maps.google.com/maps?z=12&t=m&q=loc:" + loc[2] + "+" + loc[1];
+                    String url = "http://maps.google.com/maps?z=12&t=m&q=loc:" + loc[0] + "+" + loc[1];
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(url));
-                    holder.binding.getRoot().getContext().startActivity(i);
+                    binding.getRoot().getContext().startActivity(i);
                 }
             });
         }
 
-        holder.binding.imageView3.setOnClickListener(new View.OnClickListener() {
+        binding.imageView3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 am.toggleDialog(true);

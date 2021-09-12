@@ -51,6 +51,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -203,9 +204,7 @@ public class ChatroomFragment extends Fragment {
         HashMap<String, Object> chat = new HashMap<>();
         chat.put("created_at", FieldValue.serverTimestamp());
         chat.put("content", msg);
-        chat.put("owner", cur_user.getDisplayName());
-        chat.put("ownerRef", user.getPhotoref());
-        chat.put("ownerId", cur_user.getUid());
+        chat.put("owner", new ArrayList<>(Arrays.asList(cur_user.getUid(), cur_user.getDisplayName(), user.getPhotoref())));
         chat.put("chatType", chatType);
         chat.put("likedBy", new ArrayList<>());
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -247,7 +246,7 @@ public class ChatroomFragment extends Fragment {
                         if (location == null) {
                             requestNewLocationData();
                         } else {
-                            sendLocationChat(location.getLongitude(), location.getLatitude());
+                            sendLocationChat(location.getLatitude(), location.getLongitude());
                         }
                     }
                 });
@@ -270,7 +269,7 @@ public class ChatroomFragment extends Fragment {
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
             public void onLocationResult(LocationResult locationResult) {
                 Location location = locationResult.getLastLocation();
-                sendLocationChat(location.getLongitude(), location.getLatitude());
+                sendLocationChat(location.getLatitude(), location.getLongitude());
             }
         }, Looper.myLooper());
     }
@@ -289,8 +288,8 @@ public class ChatroomFragment extends Fragment {
         }
     }
 
-    public void sendLocationChat(double longi, double lat) {
-        sendChat("Sent their Location :\n" + longi + "\n" + lat, Chat.CHAT_LOCATION);
+    public void sendLocationChat(double lat, double longi) {
+        sendChat(lat + "\n" + longi, Chat.CHAT_LOCATION);
     }
 
     public void requestLocationPerms() {
