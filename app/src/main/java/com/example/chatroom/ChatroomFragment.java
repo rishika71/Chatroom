@@ -1,10 +1,13 @@
 package com.example.chatroom;
 
-import android.app.ActionBar;
-import android.app.FragmentBreadCrumbs;
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,7 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -28,7 +31,11 @@ import com.example.chatroom.models.Chat;
 import com.example.chatroom.models.Chatroom;
 import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,6 +51,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +68,13 @@ public class ChatroomFragment extends Fragment {
 
     FirebaseUser cur_user;
 
+    public static final int REQUEST_LOCATION = 72;
+
+    User user;
+
     FirebaseFirestore db;
+
+    FusedLocationProviderClient mFusedLocationClient;
 
     Chatroom chatroom;
 
@@ -87,6 +101,7 @@ public class ChatroomFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString());
         }
+        user = am.getUser();
     }
 
     @Override
@@ -96,6 +111,7 @@ public class ChatroomFragment extends Fragment {
         if (getArguments() != null) {
             chatroom = (Chatroom) getArguments().getSerializable(Utils.DB_CHATROOM);
         }
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
     }
 
     @Override
@@ -169,7 +185,6 @@ public class ChatroomFragment extends Fragment {
             }
         });
 
-        User user = am.getUser();
         binding.floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,29 +193,31 @@ public class ChatroomFragment extends Fragment {
                     Toast.makeText(getContext(), "Send a message", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                HashMap<String, Object> chat = new HashMap<>();
-                chat.put("created_at", FieldValue.serverTimestamp());
-                chat.put("content", msg);
-                chat.put("owner", cur_user.getDisplayName());
-                chat.put("ownerRef", user.getPhotoref());
-                chat.put("ownerId", cur_user.getUid());
-                chat.put("likedBy", new ArrayList<>());
-                db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getContext(), "Message Sent", Toast.LENGTH_SHORT).show();
-                            binding.editTextTextPersonName.setText("");
-                        } else {
-                            task.getException().printStackTrace();
-                        }
-                    }
-                });
-
+                sendChat(msg, Chat.CHAT_MESSAGE);
             }
         });
 
         return view;
+    }
+
+    public void sendChat(String msg, int chatType) {
+        HashMap<String, Object> chat = new HashMap<>();
+        chat.put("created_at", FieldValue.serverTimestamp());
+        chat.put("content", msg);
+        chat.put("owner", new ArrayList<>(Arrays.asList(cur_user.getUid(), cur_user.getDisplayName(), user.getPhotoref())));
+        chat.put("chatType", chatType);
+        chat.put("likedBy", new ArrayList<>());
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(getContext(), "Message Sent", Toast.LENGTH_SHORT).show();
+                    binding.editTextTextPersonName.setText("");
+                } else {
+                    task.getException().printStackTrace();
+                }
+            }
+        });
     }
 
     interface IChat {
@@ -214,7 +231,75 @@ public class ChatroomFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu, menu);
-        super.onCreateOptionsMenu(menu,inflater);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @SuppressLint("MissingPermission")
+    public void getLastLocation() {
+        if (hasLocationPerms()) {
+            LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            if (isLocationEnabled(lm)) {
+                mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        Location location = task.getResult();
+                        if (location == null) {
+                            requestNewLocationData();
+                        } else {
+                            sendLocationChat(location.getLatitude(), location.getLongitude());
+                        }
+                    }
+                });
+            } else {
+                Toast.makeText(getContext(), "Please turn your location on!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            requestLocationPerms();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void requestNewLocationData() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(5);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setNumUpdates(1);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
+            public void onLocationResult(LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                sendLocationChat(location.getLatitude(), location.getLongitude());
+            }
+        }, Looper.myLooper());
+    }
+
+    public boolean isLocationEnabled(LocationManager lm) {
+        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation();
+            }
+        }
+    }
+
+    public void sendLocationChat(double lat, double longi) {
+        sendChat(lat + "\n" + longi, Chat.CHAT_LOCATION);
+    }
+
+    public void requestLocationPerms() {
+        ActivityCompat.requestPermissions(getActivity(), new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+    }
+
+    public boolean hasLocationPerms() {
+        return ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -222,9 +307,11 @@ public class ChatroomFragment extends Fragment {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_request_ride:
-                Log.d(TAG, "onOptionsItemSelected:");
                 navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
                 navController.navigate(R.id.action_chatroomFragment_to_mapsFragment);
+                return true;
+            case R.id.action_send_location:
+                getLastLocation();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
