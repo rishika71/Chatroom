@@ -4,15 +4,16 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import com.example.chatroom.models.Chatroom;
-import com.example.chatroom.models.Utils;
+import com.example.chatroom.databinding.FragmentMapsBinding;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -42,7 +43,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
+public class MapsFragment extends Fragment {
+
+    FragmentMapsBinding binding;
 
     ArrayList<LatLng> mMarkerPoints;
     AutocompleteSupportFragment autocompleteFragment, autocompleteFragment2;
@@ -51,33 +55,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LatLng mDestination;
     private Polyline mPolyline;
 
-    Chatroom chatroom;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        getActivity().setTitle("Request Ride");
+        binding = FragmentMapsBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
         mMarkerPoints = new ArrayList<>();
 
-        setContentView(R.layout.fragment_maps);
-
-        if (getIntent().getExtras() == null || getIntent().getExtras().getSerializable(Utils.DB_CHATROOM) == null) {
-            return;
-        }
-        chatroom = (Chatroom) getIntent().getExtras().getSerializable(Utils.DB_CHATROOM);
-
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.mapView);
 
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    mMap = googleMap;
+                    mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                        @Override
+                        public void onMapClick(LatLng point) {
+                            addMarker(point);
+                        }
+                    });
+                }
+            });
+        }
 
         String apiKey = getString(R.string.api_key);
 
-        Places.initialize(this, apiKey);
+        Places.initialize(getContext(), apiKey);
 
         autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment2);
+                getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment2);
 
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.LAT_LNG, Place.Field.ID, Place.Field.NAME));
 
@@ -93,7 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         autocompleteFragment2 = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment3);
+                getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment3);
 
         autocompleteFragment2.setPlaceFields(Arrays.asList(Place.Field.LAT_LNG, Place.Field.ID, Place.Field.NAME));
 
@@ -108,16 +118,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        findViewById(R.id.button6).setOnClickListener(new View.OnClickListener() {
+        binding.button6.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mMarkerPoints.size() >= 2 && mOrigin != null & mDestination != null) {
-                    Navigation.findNavController(findViewById(R.id.fragmentContainerView2)).popBackStack();
+                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
                 } else {
-                    Toast.makeText(MapsActivity.this, "Please select pickup and destination", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Please select pickup and destination", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        return view;
     }
 
     public void addMarker(LatLng point) {
@@ -147,17 +159,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mDestination = mMarkerPoints.get(1);
             drawRoute();
         }
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng point) {
-                addMarker(point);
-            }
-        });
     }
 
     private void drawRoute() {
@@ -291,8 +292,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mPolyline = mMap.addPolyline(lineOptions);
 
             } else
-                Toast.makeText(getApplicationContext(), "No route is found", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "No route is found", Toast.LENGTH_LONG).show();
         }
     }
-
 }
