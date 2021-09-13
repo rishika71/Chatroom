@@ -28,6 +28,7 @@ import com.example.chatroom.adapter.ChatAdapter;
 import com.example.chatroom.databinding.FragmentChatroomBinding;
 import com.example.chatroom.models.Chat;
 import com.example.chatroom.models.Chatroom;
+import com.example.chatroom.models.Ride;
 import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -38,7 +39,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -65,8 +65,6 @@ public class ChatroomFragment extends Fragment {
 
     FirebaseAuth mAuth;
 
-    FirebaseUser cur_user;
-
     public static final int REQUEST_LOCATION = 72;
 
     User user;
@@ -77,21 +75,34 @@ public class ChatroomFragment extends Fragment {
 
     Chatroom chatroom;
 
+    Ride ride;
+
     NavController navController;
 
     @Override
     public void onStop() {
         super.onStop();
-        chatroom.removeViewer(cur_user.getUid());
+        removeViewer();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        removeRideRequest();
+    }
+
+    public void removeViewer() {
+        chatroom.removeViewer(user.getId());
         HashMap<String, Object> upd = new HashMap<>();
         upd.put("viewers", chatroom.getViewers());
-        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-            }
-        });
-        user.setChatroom(null);
-        super.onStop();
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd);
+    }
+
+    public void removeRideRequest() {
+        if (ride != null && ride.getMsg_id() != null) {
+            DocumentReference dbc = db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(ride.getMsg_id());
+            dbc.delete();
+        }
     }
 
     @Override
@@ -103,6 +114,9 @@ public class ChatroomFragment extends Fragment {
             throw new RuntimeException(context.toString());
         }
         user = am.getUser();
+        chatroom = user.getChatroom();
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -110,24 +124,23 @@ public class ChatroomFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (getArguments() != null) {
-            chatroom = (Chatroom) getArguments().getSerializable(Utils.DB_CHATROOM);
+            if (getArguments().getInt(MapsFragment.REQUEST_RIDE) == 1 && user.getRide() != null) {
+                ride = user.getRide();
+                sendRequestChat();
+            }
         }
-        user.setChatroom(chatroom);
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (!chatroom.getViewers().containsKey(cur_user.getUid())) {
-            chatroom.addViewer(cur_user.getUid(), cur_user.getDisplayName());
+        if (!chatroom.getViewers().containsKey(user.getId())) {
+            chatroom.addViewer(user.getId(), user.getDisplayName());
             HashMap<String, Object> upd = new HashMap<>();
             upd.put("viewers", chatroom.getViewers());
-            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                }
-            });
+            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd);
         }
     }
 
@@ -136,9 +149,6 @@ public class ChatroomFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         getActivity().setTitle("Chatroom " + chatroom.getName());
-        db = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        cur_user = mAuth.getCurrentUser();
 
         am.toggleDialog(true);
 
@@ -207,11 +217,31 @@ public class ChatroomFragment extends Fragment {
         return view;
     }
 
+    public void sendRequestChat() {
+        HashMap<String, Object> chat = new HashMap<>();
+        chat.put("created_at", FieldValue.serverTimestamp());
+        chat.put("content", ride.getPickup().latitude + "\n" + ride.getPickup().longitude + "\n" + ride.getDrop().latitude + "\n" + ride.getDrop().longitude);
+        chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
+        chat.put("chatType", Chat.CHAT_REQUEST);
+        chat.put("likedBy", new ArrayList<>());
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                if (task.isSuccessful()) {
+                    ride.setMsg_id(task.getResult().getId());
+                    Toast.makeText(getContext(), "You requested a ride", Toast.LENGTH_SHORT).show();
+                } else {
+                    task.getException().printStackTrace();
+                }
+            }
+        });
+    }
+
     public void sendChat(String msg, int chatType) {
         HashMap<String, Object> chat = new HashMap<>();
         chat.put("created_at", FieldValue.serverTimestamp());
         chat.put("content", msg);
-        chat.put("owner", new ArrayList<>(Arrays.asList(cur_user.getUid(), cur_user.getDisplayName(), user.getPhotoref())));
+        chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
         chat.put("chatType", chatType);
         chat.put("likedBy", new ArrayList<>());
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {

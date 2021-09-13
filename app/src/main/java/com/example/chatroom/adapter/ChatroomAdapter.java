@@ -1,7 +1,5 @@
 package com.example.chatroom.adapter;
 
-import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.chatroom.R;
 import com.example.chatroom.databinding.ChatroomLayoutBinding;
 import com.example.chatroom.models.Chatroom;
+import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
 
 import java.util.ArrayList;
@@ -48,9 +47,9 @@ public class ChatroomAdapter extends RecyclerView.Adapter<ChatroomAdapter.UViewH
         holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(Utils.DB_CHATROOM, chatroom);
-                Navigation.findNavController(holder.itemView).navigate(R.id.action_chatroomsFragmentNav_to_chatroomFragment, bundle);
+                User user = am.getUser();
+                user.setChatroom(chatroom);
+                Navigation.findNavController(holder.itemView).navigate(R.id.action_chatroomsFragmentNav_to_chatroomFragment);
             }
         });
     }
@@ -62,9 +61,7 @@ public class ChatroomAdapter extends RecyclerView.Adapter<ChatroomAdapter.UViewH
 
     public interface IChatRoomAdapter {
 
-        void toggleDialog(boolean show);
-
-        void startActivity(Intent intent, Bundle options);
+        User getUser();
 
     }
 

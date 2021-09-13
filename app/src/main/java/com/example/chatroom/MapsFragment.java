@@ -1,5 +1,6 @@
 package com.example.chatroom;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.chatroom.databinding.FragmentMapsBinding;
+import com.example.chatroom.models.Ride;
+import com.example.chatroom.models.User;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -54,6 +57,20 @@ public class MapsFragment extends Fragment {
     private LatLng mOrigin;
     private LatLng mDestination;
     private Polyline mPolyline;
+    public static final String REQUEST_RIDE = "request";
+    User user;
+    IRequestRide am;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof IRequestRide) {
+            am = (IRequestRide) context;
+        } else {
+            throw new RuntimeException(context.toString());
+        }
+        user = am.getUser();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -122,7 +139,10 @@ public class MapsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (mMarkerPoints.size() >= 2 && mOrigin != null & mDestination != null) {
-                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+                    user.setRide(new Ride(mOrigin, mDestination));
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(REQUEST_RIDE, 1);
+                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_mapsFragment_to_chatroomFragment, bundle);
                 } else {
                     Toast.makeText(getContext(), "Please select pickup and destination", Toast.LENGTH_SHORT).show();
                 }
@@ -130,6 +150,12 @@ public class MapsFragment extends Fragment {
         });
 
         return view;
+    }
+
+    interface IRequestRide {
+
+        User getUser();
+
     }
 
     public void addMarker(LatLng point) {

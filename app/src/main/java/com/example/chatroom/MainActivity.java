@@ -10,7 +10,7 @@ import com.example.chatroom.adapter.ChatAdapter;
 import com.example.chatroom.adapter.ChatroomAdapter;
 import com.example.chatroom.models.User;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.ILogin, ChatroomFragment.IChat, CreateNewAccountFragment.IRegister, ChatroomsFragment.IChatRoom, UsersFragment.IUsers, EditProfileFragment.IEditUser, UserProfileFragment.IUserProfile, ChatroomAdapter.IChatRoomAdapter, ChatAdapter.IChatAdapter {
+public class MainActivity extends AppCompatActivity implements LoginFragment.ILogin, MapsFragment.IRequestRide, ChatroomFragment.IChat, CreateNewAccountFragment.IRegister, ChatroomsFragment.IChatRoom, UsersFragment.IUsers, EditProfileFragment.IEditUser, UserProfileFragment.IUserProfile, ChatroomAdapter.IChatRoomAdapter, ChatAdapter.IChatAdapter {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
