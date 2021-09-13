@@ -3,6 +3,7 @@ package com.example.chatroom;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -21,7 +22,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -307,8 +307,8 @@ public class ChatroomFragment extends Fragment {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_request_ride:
-                navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
-                navController.navigate(R.id.action_chatroomFragment_to_mapsFragment);
+                Intent intent = new Intent(getActivity(), MapsActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.action_send_location:
                 getLastLocation();
