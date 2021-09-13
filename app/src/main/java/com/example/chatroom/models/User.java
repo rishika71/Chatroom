@@ -6,6 +6,26 @@ public class User implements Serializable {
 
     String firstname, lastname, photoref, city, email, gender, id;
 
+    Chatroom chatroom;
+
+    Ride ride;
+
+    public Chatroom getChatroom() {
+        return chatroom;
+    }
+
+    public void setChatroom(Chatroom chatroom) {
+        this.chatroom = chatroom;
+    }
+
+    public Ride getRide() {
+        return ride;
+    }
+
+    public void setRide(Ride ride) {
+        this.ride = ride;
+    }
+
     public User() {
     }
 

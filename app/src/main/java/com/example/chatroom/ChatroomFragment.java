@@ -3,7 +3,6 @@ package com.example.chatroom;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -22,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.chatroom.adapter.ChatAdapter;
@@ -81,6 +81,7 @@ public class ChatroomFragment extends Fragment {
 
     @Override
     public void onStop() {
+        super.onStop();
         chatroom.removeViewer(cur_user.getUid());
         HashMap<String, Object> upd = new HashMap<>();
         upd.put("viewers", chatroom.getViewers());
@@ -89,6 +90,7 @@ public class ChatroomFragment extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
             }
         });
+        user.setChatroom(null);
         super.onStop();
     }
 
@@ -110,7 +112,23 @@ public class ChatroomFragment extends Fragment {
         if (getArguments() != null) {
             chatroom = (Chatroom) getArguments().getSerializable(Utils.DB_CHATROOM);
         }
+        user.setChatroom(chatroom);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!chatroom.getViewers().containsKey(cur_user.getUid())) {
+            chatroom.addViewer(cur_user.getUid(), cur_user.getDisplayName());
+            HashMap<String, Object> upd = new HashMap<>();
+            upd.put("viewers", chatroom.getViewers());
+            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                }
+            });
+        }
     }
 
     @Override
@@ -122,18 +140,12 @@ public class ChatroomFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         cur_user = mAuth.getCurrentUser();
 
-        chatroom.addViewer(cur_user.getUid(), cur_user.getDisplayName());
-        HashMap<String, Object> upd = new HashMap<>();
-        upd.put("viewers", chatroom.getViewers());
         am.toggleDialog(true);
-        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-            }
-        });
 
         binding = FragmentChatroomBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
+        navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -299,11 +311,9 @@ public class ChatroomFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_request_ride:
-                Intent intent = new Intent(getActivity(), MapsActivity.class);
-                startActivity(intent);
+                navController.navigate(R.id.action_chatroomFragment_to_mapsFragment);
                 return true;
             case R.id.action_send_location:
                 getLastLocation();
