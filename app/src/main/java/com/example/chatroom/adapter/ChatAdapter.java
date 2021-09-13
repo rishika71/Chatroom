@@ -95,7 +95,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
 
         if (chat.getChatType() == Chat.CHAT_MESSAGE) {
 
-            binding.textView8.setText("-> " + chat.getContent());
+            binding.textView8.setText(chat.getContent());
 
             binding.textView9.setText(chat.getLikedBy().size() + " ♥");
 
@@ -145,8 +145,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             if (chat.getOwnerId().equals(cur_user.getUid())) {
                 binding.imageView3.setVisibility(View.VISIBLE);
             }
-            binding.textView8.setText("Sent Location - \n" + chat.getContent());
-            binding.textView8.setTypeface(null, Typeface.BOLD);
+            binding.textView8.setText("Sent their Location!\nTap for more info");
+            binding.textView8.setTypeface(null, Typeface.ITALIC);
             binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -157,6 +157,33 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                     binding.getRoot().getContext().startActivity(i);
                 }
             });
+        } else if (chat.getChatType() == Chat.CHAT_REQUEST) {
+            binding.imageView.setVisibility(View.GONE);
+            if (!chat.getOwnerId().equals(cur_user.getUid())) {
+                binding.textView8.setText("Requested a Ride!\nTap for more info");
+                binding.textView8.setTypeface(null, Typeface.ITALIC);
+                binding.getRoot().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String[] loc = chat.getContent().split("\n");
+
+                    }
+                });
+            } else {
+                binding.imageView3.setVisibility(View.VISIBLE);
+                binding.textView8.setText("You requested a ride in this chatroom!");
+                binding.textView8.setTypeface(null, Typeface.ITALIC);
+                binding.getRoot().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String[] loc = chat.getContent().split("\n");
+                        String url = "http://maps.google.com?z=12&saddr=" + loc[0] + "," + loc[1] + "&daddr=" + loc[2] + "," + loc[3];
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(url));
+                        binding.getRoot().getContext().startActivity(i);
+                    }
+                });
+            }
         }
 
         binding.imageView3.setOnClickListener(new View.OnClickListener() {
@@ -167,18 +194,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                 dbc.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        dbc.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                am.toggleDialog(false);
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(view.getContext(), "Message Deleted", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    task.getException().printStackTrace();
-                                }
-                            }
-                        });
-
+                        am.toggleDialog(false);
+                        if (task.isSuccessful()) {
+                            Toast.makeText(view.getContext(), "Message Deleted", Toast.LENGTH_SHORT).show();
+                        } else {
+                            task.getException().printStackTrace();
+                        }
                     }
                 });
             }
