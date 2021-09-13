@@ -67,6 +67,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
 
         binding = holder.binding;
 
+        if (chat.getOwnerId().equals(cur_user.getUid())) {
+            binding.chatlayout.setBackgroundResource(R.drawable.outgoing_bubble);
+        }
+
         binding.textView7.setText(chat.getOwnerName());
         binding.textView10.setText(Utils.getDateString(chat.getCreated_at()));
 

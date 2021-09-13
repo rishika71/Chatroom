@@ -4,11 +4,15 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
+import androidx.navigation.Navigation;
 
+import com.example.chatroom.models.Chatroom;
+import com.example.chatroom.models.Utils;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -47,6 +51,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LatLng mDestination;
     private Polyline mPolyline;
 
+    Chatroom chatroom;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -55,6 +61,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMarkerPoints = new ArrayList<>();
 
         setContentView(R.layout.fragment_maps);
+
+        if (getIntent().getExtras() == null || getIntent().getExtras().getSerializable(Utils.DB_CHATROOM) == null) {
+            return;
+        }
+        chatroom = (Chatroom) getIntent().getExtras().getSerializable(Utils.DB_CHATROOM);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapView);
@@ -94,6 +105,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onError(@NonNull Status status) {
+            }
+        });
+
+        findViewById(R.id.button6).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMarkerPoints.size() >= 2 && mOrigin != null & mDestination != null) {
+                    Navigation.findNavController(findViewById(R.id.fragmentContainerView2)).popBackStack();
+                } else {
+                    Toast.makeText(MapsActivity.this, "Please select pickup and destination", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

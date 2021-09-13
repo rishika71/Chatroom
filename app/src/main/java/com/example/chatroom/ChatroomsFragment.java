@@ -175,8 +175,6 @@ public class ChatroomsFragment extends Fragment {
                     }
                 });
 
-                //builder.create().show();
-
             }
         });
 

@@ -1,5 +1,6 @@
 package com.example.chatroom.adapter;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,6 +63,8 @@ public class ChatroomAdapter extends RecyclerView.Adapter<ChatroomAdapter.UViewH
     public interface IChatRoomAdapter {
 
         void toggleDialog(boolean show);
+
+        void startActivity(Intent intent, Bundle options);
 
     }
 
