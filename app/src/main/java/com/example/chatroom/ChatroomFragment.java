@@ -22,7 +22,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.chatroom.adapter.ChatAdapter;
@@ -159,10 +158,6 @@ public class ChatroomFragment extends Fragment {
         binding.chatsView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         binding.chatsView.setLayoutManager(llm);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(binding.chatsView.getContext(),
-                llm.getOrientation());
-        binding.chatsView.addItemDecoration(dividerItemDecoration);
 
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).orderBy("created_at", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override

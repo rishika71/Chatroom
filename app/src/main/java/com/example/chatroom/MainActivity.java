@@ -10,7 +10,13 @@ import com.example.chatroom.adapter.ChatAdapter;
 import com.example.chatroom.adapter.ChatroomAdapter;
 import com.example.chatroom.models.User;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.ILogin, CreateNewAccountFragment.IRegister, ChatroomsFragment.IChatRoom, UsersFragment.IUsers, EditProfileFragment.IEditUser, UserProfileFragment.IUserProfile, ChatroomAdapter.IChatRoomAdapter, ChatroomFragment.IChat, ChatAdapter.IChatAdapter {
+public class MainActivity extends AppCompatActivity implements LoginFragment.ILogin, ChatroomFragment.IChat, CreateNewAccountFragment.IRegister, ChatroomsFragment.IChatRoom, UsersFragment.IUsers, EditProfileFragment.IEditUser, UserProfileFragment.IUserProfile, ChatroomAdapter.IChatRoomAdapter, ChatAdapter.IChatAdapter {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
 
     ProgressDialog dialog;
 
@@ -22,13 +28,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.ILo
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
     }
 
     public void alert(String alert) {
@@ -56,6 +55,5 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.ILo
             dialog.dismiss();
         }
     }
-
 
 }

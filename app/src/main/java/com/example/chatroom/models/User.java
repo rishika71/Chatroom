@@ -19,6 +19,10 @@ public class User implements Serializable {
         this.id = id;
     }
 
+    public String getDisplayName() {
+        return this.firstname + " " + this.lastname;
+    }
+
     @Override
     public String toString() {
         return firstname + " " + lastname;
