@@ -10,7 +10,7 @@ import com.example.chatroom.adapter.ChatAdapter;
 import com.example.chatroom.adapter.ChatroomAdapter;
 import com.example.chatroom.models.User;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.ILogin, CreateNewAccountFragment.IRegister, ChatroomsFragment.IChatRoom, UsersFragment.IUsers, EditProfileFragment.IEditUser, UserProfileFragment.IUserProfile, ChatroomAdapter.IChatRoomAdapter, ChatroomFragment.IChat, ChatAdapter.IChatAdapter, MapsFragment.IMap {
+public class MainActivity extends AppCompatActivity implements LoginFragment.ILogin, CreateNewAccountFragment.IRegister, ChatroomsFragment.IChatRoom, UsersFragment.IUsers, EditProfileFragment.IEditUser, UserProfileFragment.IUserProfile, ChatroomAdapter.IChatRoomAdapter, ChatroomFragment.IChat, ChatAdapter.IChatAdapter {
 
     ProgressDialog dialog;
 

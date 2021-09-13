@@ -25,27 +25,12 @@
             android:textColor="@color/black"
             android:text="For Rider : " />
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/riderImage"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="3dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@drawable/profile_image"/>
-
-
         <TextView
             android:id="@+id/riderName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="20dp"
             android:fontFamily="sans-serif-condensed-medium"
-            android:textColor="@color/black"
-            android:textSize="16sp" />
+            android:textColor="@color/black" />
 
 
     </LinearLayout>
