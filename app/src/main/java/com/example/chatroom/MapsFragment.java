@@ -70,12 +70,6 @@ public class MapsFragment extends Fragment {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
                     mMap = googleMap;
-//                    mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-//                        @Override
-//                        public void onMapClick(LatLng point) {
-//                            mapHelper.addMarker(mMap, point);
-//                        }
-//                    });
                 }
             });
         }

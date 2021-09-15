@@ -139,7 +139,6 @@ public class TripInfoFragment extends Fragment {
                     mMap = googleMap;
                     m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng(), "Driver Location");
                     m2 = mapHelper.addMarker(mMap, trip.getRiderLatLng(), "Rider Location");
-                    mapHelper.justAddMarker(mMap, trip.getDropLatLng(), "Drop Off Location");
                 }
             });
         }
