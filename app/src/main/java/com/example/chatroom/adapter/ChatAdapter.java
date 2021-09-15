@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,8 +40,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
 
     IChatAdapter am;
 
-    NavController navController;
-
     FirebaseFirestore db;
 
     User user;
@@ -67,8 +64,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
         Chat chat = chats.get(position);
 
         binding = holder.binding;
-
-        navController = Navigation.findNavController(holder.itemView);
 
         if (chat.getOwnerId().equals(user.getId())) {
             binding.chatlayout.setBackgroundResource(R.drawable.outgoing_bubble);
@@ -171,7 +166,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                     public void onClick(View v) {
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(Utils.DB_CHAT, chat);
-                        navController.navigate(R.id.action_chatroomFragment_to_rideDetailsFragment, bundle);
+                        Navigation.findNavController(holder.itemView).navigate(R.id.action_chatroomFragment_to_rideDetailsFragment, bundle);
                     }
                 });
             } else {
@@ -199,7 +194,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                     public void onClick(View v) {
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(Utils.DB_CHAT, chat);
-                        navController.navigate(R.id.action_chatroomFragment_to_rideOfferDetailFragment, bundle);
+                        Navigation.findNavController(holder.itemView).navigate(R.id.action_chatroomFragment_to_rideOfferDetailFragment, bundle);
                     }
                 });
             } else if (chat.getOwnerId().equals(user.getId())) {
@@ -227,7 +222,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navController.navigate(R.id.action_chatroomFragment_to_tripListFragment);
+                    Navigation.findNavController(holder.itemView).navigate(R.id.action_chatroomFragment_to_tripListFragment);
                 }
             });
         }
