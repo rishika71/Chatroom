@@ -7,7 +7,7 @@ public class User implements Serializable {
 
     String firstname, lastname, photoref, city, email, gender, id;
 
-    ArrayList<String> rides;
+    ArrayList<String> rides = new ArrayList<>();
 
     Chatroom chatroom;
 
