@@ -117,15 +117,12 @@ public class RideDetailsFragment extends Fragment {
                     mapHelper.getLastLocation(new MapHelper.ILastLocation() {
                         @Override
                         public void onFetch(double lat, double longi) {
+                            sendRideOffer(lat, longi, pickup, drop);
                         }
 
                         @Override
                         public void onUpdate(double lat, double longi) {
-                            RideOffer rideOffer = new RideOffer(chat.getId(), new ArrayList<>(Arrays.asList(chat.getOwnerId(), chat.getOwnerName(), chat.getOwnerRef())), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>(Arrays.asList(lat, longi)), pickup, drop);
-                            user.setRideOffer(rideOffer);
-                            Bundle bundle = new Bundle();
-                            bundle.putInt(RIDE_OFFER, 1);
-                            Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_rideDetailsFragment_to_chatroomFragment, bundle);
+                            sendRideOffer(lat, longi, pickup, drop);
                         }
 
                         @Override
@@ -149,6 +146,14 @@ public class RideDetailsFragment extends Fragment {
 
         binding.textView24.setText(Utils.getDateString(chat.getCreated_at()));
         return binding.getRoot();
+    }
+
+    public void sendRideOffer(double lat, double longi, ArrayList<Double> pickup, ArrayList<Double> drop) {
+        RideOffer rideOffer = new RideOffer(chat.getId(), new ArrayList<>(Arrays.asList(chat.getOwnerId(), chat.getOwnerName(), chat.getOwnerRef())), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>(Arrays.asList(lat, longi)), pickup, drop);
+        user.setRideOffer(rideOffer);
+        Bundle bundle = new Bundle();
+        bundle.putInt(RIDE_OFFER, 1);
+        Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_rideDetailsFragment_to_chatroomFragment, bundle);
     }
 
     interface IRiderDetails {
