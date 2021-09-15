@@ -138,7 +138,7 @@ public class RideOfferDetailFragment extends Fragment {
                 data.put("ongoing", trip.isOngoing());
                 data.put("rider_location", trip.getRider_location());
                 data.put("driver_location", trip.getDriver_location());
-                data.put("drop_location", trip.getDriver_location());
+                data.put("drop_location", trip.getDrop_location());
 
                 db.collection(Utils.DB_TRIPS).add(data).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
