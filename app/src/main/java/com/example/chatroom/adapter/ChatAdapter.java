@@ -51,7 +51,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
         this.chatroom = chatroom;
         this.chats = chats;
         db = FirebaseFirestore.getInstance();
-        user = am.getUser();
     }
 
     @NonNull
@@ -59,6 +58,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
     public UViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         binding = ChatLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         am = (IChatAdapter) parent.getContext();
+        user = am.getUser();
         return new UViewHolder(binding);
     }
 
