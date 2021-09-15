@@ -3,6 +3,7 @@ package com.example.chatroom;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,6 +111,7 @@ public class TripInfoFragment extends Fragment {
         Location loc2 = new Location("");
         loc2.setLatitude(end.latitude);
         loc2.setLongitude(end.longitude);
+        Log.d("ddd", "getDistance: " + loc1.distanceTo(loc2));
         return loc1.distanceTo(loc2);
     }
 
