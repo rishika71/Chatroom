@@ -160,7 +160,7 @@
     </fragment>
     <fragment
         android:id="@+id/tripInfoFragment"
-        android:name="com.example.chatroom.adapter.TripInfoFragment"
+        android:name="com.example.chatroom.TripInfoFragment"
         android:label="fragment_trip_info"
         tools:layout="@layout/fragment_trip_info" />
 </navigation>

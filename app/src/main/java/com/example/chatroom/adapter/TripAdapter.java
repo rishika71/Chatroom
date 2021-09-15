@@ -21,14 +21,11 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.UViewHolder> {
 
     ArrayList<Trip> trips;
 
-    String type;
-
     User user;
 
     TripLayoutBinding binding;
 
-    public TripAdapter(String type, User user, ArrayList<Trip> trips) {
-        this.type = type;
+    public TripAdapter(User user, ArrayList<Trip> trips) {
         this.user = user;
         this.trips = trips;
     }
@@ -51,12 +48,13 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.UViewHolder> {
         });
 
         holder.binding.textView25.setText("Trip #" + trip.getNumber());
-        holder.binding.textView33.setText(trip.getType() + "r");
 
         if (trip.getDriverId().equals(user.getId())) {
             holder.binding.textView30.setText("Rider: " + trip.getRiderName());
+            holder.binding.textView33.setText("Driver");
         } else {
             holder.binding.textView30.setText("Driver: " + trip.getDriverName());
+            holder.binding.textView33.setText("Rider");
         }
 
         holder.binding.textView32.setText(Utils.getDateString(trip.getStarted_at()));
@@ -67,7 +65,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.UViewHolder> {
                 @Override
                 public void onClick(View v) {
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable(Utils.DB_TRIP, trip);
+                    bundle.putSerializable(Utils.DB_TRIPS, trip);
                     Navigation.findNavController(holder.itemView).navigate(R.id.action_tripListFragment_to_tripInfoFragment, bundle);
                 }
             });

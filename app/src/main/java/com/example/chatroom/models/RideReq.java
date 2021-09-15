@@ -1,21 +1,20 @@
 package com.example.chatroom.models;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public class RideReq implements Serializable {
 
-    public LatLng pickup, drop;
+    public ArrayList<Double> pickup_location;
+    public ArrayList<Double> drop_location;
 
-    public String ride_id;
+    public String id, msg_id;
     public ArrayList<String> requester;
     public ArrayList<String> offer_msgs;
 
-    public RideReq(LatLng pickup, LatLng drop, ArrayList<String> requester, ArrayList<String> offer_msgs) {
-        this.pickup = pickup;
-        this.drop = drop;
+    public RideReq(ArrayList<Double> pickup, ArrayList<Double> drop, ArrayList<String> requester, ArrayList<String> offer_msgs) {
+        this.pickup_location = pickup;
+        this.drop_location = drop;
         this.requester = requester;
         this.offer_msgs = offer_msgs;
     }
@@ -55,27 +54,37 @@ public class RideReq implements Serializable {
         this.offer_msgs.add(uid);
     }
 
-    public String getRide_id() {
-        return ride_id;
+    public String getMsg_id() {
+        return msg_id;
     }
 
-    public void setRide_id(String ride_id) {
-        this.ride_id = ride_id;
+    public void setMsg_id(String msg_id) {
+        this.msg_id = msg_id;
     }
 
-    public LatLng getPickup() {
-        return pickup;
+    public ArrayList<Double> getPickup_location() {
+        return pickup_location;
     }
 
-    public void setPickup(LatLng pickup) {
-        this.pickup = pickup;
+    public void setPickup_location(ArrayList<Double> pickup_location) {
+        this.pickup_location = pickup_location;
     }
 
-    public LatLng getDrop() {
-        return drop;
+    public ArrayList<Double> getDrop_location() {
+        return drop_location;
     }
 
-    public void setDrop(LatLng drop) {
-        this.drop = drop;
+    public void setDrop_location(ArrayList<Double> drop_location) {
+        this.drop_location = drop_location;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+
 }

@@ -93,17 +93,18 @@ public class ChatroomFragment extends Fragment {
     }
 
     public void removeRideStuff() {
-        if (rideReq != null && rideReq.getRide_id() != null) {
+        if (rideReq != null && rideReq.getMsg_id() != null) {
             user.setRideReq(null);
-            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(rideReq.getRide_id()).delete();
-            db.collection(Utils.DB_RIDE_REQ).document(rideReq.getRide_id()).delete();
-            db.collection(Utils.DB_RIDE_OFFER).document(rideOffer.getRide_id()).delete();
+            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(rideReq.getMsg_id()).delete();
+            db.collection(Utils.DB_RIDE_REQ).document(rideReq.getMsg_id()).delete();
         }
-        if (rideOffer != null && rideOffer.getRide_id() != null) {
+        if (rideOffer != null && rideOffer.getMsg_id() != null) {
             user.setRideOffer(null);
-            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(rideOffer.getOffer_id()).delete();
+            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(rideOffer.getMsg_id()).delete();
+            db.collection(Utils.DB_RIDE_OFFER).document(rideOffer.getMsg_id()).delete();
         }
         if (trip != null && trip.getMsg_id() != null) {
+            db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false);
             user.setTrip(null);
             db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(trip.getMsg_id()).delete();
         }
@@ -229,7 +230,7 @@ public class ChatroomFragment extends Fragment {
     public void sendRideStartedChat() {
         HashMap<String, Object> chat = new HashMap<>();
         chat.put("created_at", FieldValue.serverTimestamp());
-        chat.put("content", trip.getDriverId() + "\n" + trip.getDriverName() + "\n" + trip.getRiderName());
+        chat.put("content", trip.getId() + "\n" + trip.getDriverId() + "\n" + trip.getDriverName() + "\n" + trip.getRiderName());
         chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
         chat.put("chatType", Chat.CHAT_RIDE_STARTED);
         chat.put("likedBy", new ArrayList<>());
@@ -257,8 +258,24 @@ public class ChatroomFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<DocumentReference> task) {
                 if (task.isSuccessful()) {
-                    rideOffer.setOffer_id(task.getResult().getId());
-                    Toast.makeText(getContext(), "You sent a ride offer", Toast.LENGTH_SHORT).show();
+                    rideOffer.setMsg_id(task.getResult().getId());
+
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("msg_id", null);
+                    data.put("ride_id", rideOffer.getRide_id());
+                    data.put("rider", rideOffer.getRider());
+                    data.put("offeror", rideOffer.getOfferor());
+                    data.put("driver_location", rideOffer.getDriver_location());
+                    data.put("pickup_location", rideOffer.getPickup_location());
+                    data.put("drop_location", rideOffer.getDrop_location());
+
+                    db.collection(Utils.DB_RIDE_OFFER).document(rideOffer.getMsg_id())
+                            .set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(getContext(), "You sent a ride offer", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     task.getException().printStackTrace();
                 }
@@ -269,7 +286,7 @@ public class ChatroomFragment extends Fragment {
     public void sendRequestChat() {
         HashMap<String, Object> chat = new HashMap<>();
         chat.put("created_at", FieldValue.serverTimestamp());
-        chat.put("content", rideReq.getPickup().latitude + "\n" + rideReq.getPickup().longitude + "\n" + rideReq.getDrop().latitude + "\n" + rideReq.getDrop().longitude);
+        chat.put("content", rideReq.getPickup_location().get(0) + "\n" + rideReq.getPickup_location().get(1) + "\n" + rideReq.getDrop_location().get(0) + "\n" + rideReq.getDrop_location().get(1));
         chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
         chat.put("chatType", Chat.CHAT_RIDE_REQUEST);
         chat.put("likedBy", new ArrayList<>());
@@ -277,8 +294,21 @@ public class ChatroomFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<DocumentReference> task) {
                 if (task.isSuccessful()) {
-                    rideReq.setRide_id(task.getResult().getId());
-                    Toast.makeText(getContext(), "You requested a ride", Toast.LENGTH_SHORT).show();
+                    rideReq.setMsg_id(task.getResult().getId());
+
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("msg_id", rideReq.getMsg_id());
+                    data.put("pickup_location", rideReq.getPickup_location());
+                    data.put("drop_location", rideReq.getDrop_location());
+                    data.put("requester", rideReq.getRequester());
+
+                    db.collection(Utils.DB_RIDE_REQ).document(rideReq.getMsg_id())
+                            .set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(getContext(), "You requested a ride", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     task.getException().printStackTrace();
                 }
@@ -332,12 +362,7 @@ public class ChatroomFragment extends Fragment {
                 });
                 return true;
             case R.id.action_your_rides:
-                bundle.putString(TYPE, Utils.RIDE_TYPE);
-                navController.navigate(R.id.action_chatroomFragment_to_tripListFragment, bundle);
-                return true;
-            case R.id.action_your_drives:
-                bundle.putString(TYPE, Utils.DRIVE_TYPE);
-                navController.navigate(R.id.action_chatroomFragment_to_tripListFragment, bundle);
+                navController.navigate(R.id.action_chatroomFragment_to_tripListFragment);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

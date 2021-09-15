@@ -35,6 +35,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -98,6 +99,7 @@ public class CreateNewAccountFragment extends Fragment {
         data.put("gender", gender);
         data.put("email", email);
         data.put("photoref", fileName);
+        data.put("rides", new ArrayList<>());
 
         db.collection(Utils.DB_PROFILE)
                 .document(mAuth.getUid())

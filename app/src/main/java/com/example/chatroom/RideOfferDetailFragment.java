@@ -24,15 +24,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -116,8 +115,8 @@ public class RideOfferDetailFragment extends Fragment {
                                 .load(R.drawable.profile_image)
                                 .into(binding.imageView8);
                     }
-                    ArrayList<Double> location = rideOffer.getLocation();
-                    mapHelper.addMarker(mMap, new LatLng(location.get(0), location.get(1)));
+                    ArrayList<Double> driver_location = rideOffer.getDriver_location();
+                    mapHelper.addMarker(mMap, new LatLng(driver_location.get(0), driver_location.get(1)));
                 } else {
                     task.getException().printStackTrace();
                 }
@@ -127,32 +126,40 @@ public class RideOfferDetailFragment extends Fragment {
         binding.button10.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mapHelper.hasLocationPerms() && mapHelper.isLocationEnabled()) {
-                    mapHelper.getLastLocation(new MapHelper.ILastLocation() {
-                        @Override
-                        public void onFetch(double lat, double longi) {
+                am.toggleDialog(true);
 
-                        }
+                Trip trip = new Trip(rideOffer.getRide_id(), new Date(), rideOffer.getRider(), rideOffer.getOfferor(), rideOffer.getPickup_location(), rideOffer.getDriver_location(), rideOffer.getDrop_location());
 
-                        @Override
-                        public void onUpdate(double lat, double longi) {
-                            Trip trip = new Trip(rideOffer.getRide_id(), new Date(), rideOffer.getRider(), rideOffer.getOfferor());
-                            trip.setRider_location(new ArrayList<>(Arrays.asList(lat, longi)));
-                            setRide(db.collection(Utils.DB_TRIP).document(trip.getRiderId()).collection(Utils.DB_TRIPS), trip, Utils.RIDE_TYPE);
-                            setRide(db.collection(Utils.DB_TRIP).document(trip.getDriverId()).collection(Utils.DB_TRIPS), trip, Utils.DRIVE_TYPE);
-                            trip.setType(Utils.RIDE_TYPE);
+                HashMap<String, Object> data = new HashMap<>();
+                data.put("ride_id", trip.getRide_id());
+                data.put("started_at", trip.getStarted_at());
+                data.put("rider", trip.getRider());
+                data.put("driver", trip.getDriver());
+                data.put("ongoing", trip.isOngoing());
+                data.put("rider_location", trip.getRider_location());
+                data.put("driver_location", trip.getDriver_location());
+                data.put("drop_location", trip.getDriver_location());
+
+                db.collection(Utils.DB_TRIPS).add(data).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentReference> task) {
+                        if (task.isSuccessful()) {
+                            trip.setId(task.getResult().getId());
                             user.setTrip(trip);
-                        }
 
-                        @Override
-                        public boolean stopAfterOneUpdate() {
-                            return true;
-                        }
-                    });
-                } else {
-                    mapHelper.sendLocOffMessage();
-                }
+                            user.addRide(trip.getId());
 
+                            db.collection(Utils.DB_PROFILE).document(user.getId()).update("rides", FieldValue.arrayUnion(trip.getId()));
+                            db.collection(Utils.DB_PROFILE).document(trip.getDriverId()).update("rides", FieldValue.arrayUnion(trip.getId()));
+
+                            Bundle bundle = new Bundle();
+                            bundle.putInt(RIDE_STARTED, 1);
+                            Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_rideOfferDetailFragment_to_chatroomFragment, bundle);
+                        } else {
+                            task.getException().printStackTrace();
+                        }
+                    }
+                });
 
             }
         });
@@ -165,31 +172,6 @@ public class RideOfferDetailFragment extends Fragment {
         });
 
         return view;
-    }
-
-    public void setRide(CollectionReference dbc, Trip ride, String type) {
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("ride_id", ride.getRide_id());
-        data.put("started_at", ride.getStarted_at());
-        data.put("type", type);
-        data.put("rider", ride.getRider());
-        data.put("driver", ride.getDriver());
-        data.put("ongoing", ride.isOngoing());
-        data.put("rider_location", ride.getRider_location());
-
-        dbc.add(data).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentReference> task) {
-                if (task.isSuccessful()) {
-                    ride.setId(task.getResult().getId());
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(RIDE_STARTED, 1);
-                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_rideOfferDetailFragment_to_chatroomFragment, bundle);
-                } else {
-                    task.getException().printStackTrace();
-                }
-            }
-        });
     }
 
     interface IOfferDetails {

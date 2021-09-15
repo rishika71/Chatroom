@@ -7,14 +7,58 @@ public class RideOffer implements Serializable {
 
     public ArrayList<String> rider;
     public ArrayList<String> offeror;
-    String ride_id, offer_id;
-    ArrayList<Double> location;
+    public ArrayList<Double> pickup_location;
+    public ArrayList<Double> drop_location;
+    String id, msg_id, ride_id, offer_id;
+    ArrayList<Double> driver_location;
 
-    public RideOffer(String ride_id, ArrayList<String> rider, ArrayList<String> offeror, ArrayList<Double> location) {
+    public RideOffer(String ride_id, ArrayList<String> rider, ArrayList<String> offeror, ArrayList<Double> driver_location, ArrayList<Double> pickup_location, ArrayList<Double> drop_location) {
         this.ride_id = ride_id;
         this.rider = rider;
         this.offeror = offeror;
-        this.location = location;
+        this.driver_location = driver_location;
+        this.pickup_location = pickup_location;
+        this.drop_location = drop_location;
+    }
+
+    public String getMsg_id() {
+        return msg_id;
+    }
+
+    public void setMsg_id(String msg_id) {
+        this.msg_id = msg_id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public ArrayList<Double> getPickup_location() {
+        return pickup_location;
+    }
+
+    public void setPickup_location(ArrayList<Double> pickup_location) {
+        this.pickup_location = pickup_location;
+    }
+
+    public ArrayList<Double> getDrop_location() {
+        return drop_location;
+    }
+
+    public void setDrop_location(ArrayList<Double> drop_location) {
+        this.drop_location = drop_location;
+    }
+
+    public ArrayList<Double> getDriver_location() {
+        return driver_location;
+    }
+
+    public void setDriver_location(ArrayList<Double> driver_location) {
+        this.driver_location = driver_location;
     }
 
     public RideOffer() {
@@ -74,13 +118,5 @@ public class RideOffer implements Serializable {
 
     public String getOfferorName() {
         return offeror.get(Utils.NAME);
-    }
-
-    public ArrayList<Double> getLocation() {
-        return location;
-    }
-
-    public void setLocation(ArrayList<Double> location) {
-        this.location = location;
     }
 }
