@@ -171,7 +171,12 @@ public class TripInfoFragment extends Fragment {
                 }
                 trip = value.toObject(Trip.class);
                 trip.setId(value.getId());
-                mapHelper.animateMarker(mMap, m1, trip.getDriverLatLng(), false);
+                if (!trip.isOngoing()) {
+                    Toast.makeText(getContext(), "Trip has completed!", Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+                    return;
+                }
+                m1.setPosition(trip.getDriverLatLng());
                 if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
                     db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false).addOnCompleteListener(new OnCompleteListener<Void>() {
