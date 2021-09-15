@@ -77,13 +77,15 @@ public class TripInfoFragment extends Fragment {
         }
     }
 
-    public void updLocation(String type) {
+    public void updLocation(String type, ArrayList<Double> current_pos) {
         mapHelper.getLastLocation(new MapHelper.ILastLocation() {
             @Override
             public void onUpdate(double lat, double longi) {
-                HashMap<String, Object> upd = new HashMap<>();
-                upd.put(type, new ArrayList<>(Arrays.asList(lat, longi)));
-                db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
+                if (current_pos.get(0) != lat && current_pos.get(1) != longi) {
+                    HashMap<String, Object> upd = new HashMap<>();
+                    upd.put(type, new ArrayList<>(Arrays.asList(lat, longi)));
+                    db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
+                }
             }
 
             @Override
@@ -152,9 +154,9 @@ public class TripInfoFragment extends Fragment {
         setImage(binding.imageView10, trip.getDriverId(), trip.getDriverRef());
 
         if (user.getId().equals(trip.getDriverId())) {
-            updLocation("driver_location");
+            updLocation("driver_location", trip.getDriver_location());
         } else {
-            updLocation("rider_location");
+            updLocation("rider_location", trip.getRider_location());
         }
 
         db.collection(Utils.DB_TRIPS).document(trip.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
