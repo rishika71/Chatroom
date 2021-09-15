@@ -17,7 +17,7 @@
     <item
         android:id="@+id/action_your_rides"
         android:orderInCategory="102"
-        android:title="Your Rides"
+        android:title="Your Trips"
         app:showAsAction="never" />
 
 </menu>
