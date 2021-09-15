@@ -76,7 +76,7 @@ public class TripListFragment extends Fragment {
 
         am.toggleDialog(true);
 
-        db.collection(Utils.DB_TRIPS).orderBy("started_at", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection(Utils.DB_TRIPS).orderBy("started_at", Query.Direction.DESCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
