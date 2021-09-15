@@ -30,7 +30,6 @@ import java.util.Arrays;
 
 public class RideDetailsFragment extends Fragment {
 
-    public static final String RIDE_OFFER = "rideoffer";
     FragmentRiderDetailsBinding binding;
     Chat chat;
     User user;
@@ -115,10 +114,6 @@ public class RideDetailsFragment extends Fragment {
                 if (mapHelper.hasLocationPerms() && mapHelper.isLocationEnabled()) {
 
                     mapHelper.getLastLocation(new MapHelper.ILastLocation() {
-                        @Override
-                        public void onFetch(double lat, double longi) {
-                            sendRideOffer(lat, longi, pickup, drop);
-                        }
 
                         @Override
                         public void onUpdate(double lat, double longi) {
@@ -151,9 +146,8 @@ public class RideDetailsFragment extends Fragment {
     public void sendRideOffer(double lat, double longi, ArrayList<Double> pickup, ArrayList<Double> drop) {
         RideOffer rideOffer = new RideOffer(chat.getId(), new ArrayList<>(Arrays.asList(chat.getOwnerId(), chat.getOwnerName(), chat.getOwnerRef())), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>(Arrays.asList(lat, longi)), pickup, drop);
         user.setRideOffer(rideOffer);
-        Bundle bundle = new Bundle();
-        bundle.putInt(RIDE_OFFER, 1);
-        Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_rideDetailsFragment_to_chatroomFragment, bundle);
+        user.ride_offer = true;
+        Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
     }
 
     interface IRiderDetails {

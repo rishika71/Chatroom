@@ -153,9 +153,8 @@ public class RideOfferDetailFragment extends Fragment {
                             db.collection(Utils.DB_PROFILE).document(user.getId()).update("rides", FieldValue.arrayUnion(trip.getId()));
                             db.collection(Utils.DB_PROFILE).document(trip.getDriverId()).update("rides", FieldValue.arrayUnion(trip.getId()));
 
-                            Bundle bundle = new Bundle();
-                            bundle.putInt(RIDE_STARTED, 1);
-                            Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_rideOfferDetailFragment_to_chatroomFragment, bundle);
+                            user.ride_started = true;
+                            Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
                         } else {
                             task.getException().printStackTrace();
                         }

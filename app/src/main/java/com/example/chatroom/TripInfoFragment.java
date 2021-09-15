@@ -3,7 +3,6 @@ package com.example.chatroom;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,15 +80,7 @@ public class TripInfoFragment extends Fragment {
     public void updLocation(String type) {
         mapHelper.getLastLocation(new MapHelper.ILastLocation() {
             @Override
-            public void onFetch(double lat, double longi) {
-                HashMap<String, Object> upd = new HashMap<>();
-                upd.put(type, new ArrayList<>(Arrays.asList(lat, longi)));
-                db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
-            }
-
-            @Override
             public void onUpdate(double lat, double longi) {
-                Log.d("ddd", "onUpdate: hi");
                 HashMap<String, Object> upd = new HashMap<>();
                 upd.put(type, new ArrayList<>(Arrays.asList(lat, longi)));
                 db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
@@ -115,7 +106,6 @@ public class TripInfoFragment extends Fragment {
         Location loc2 = new Location("");
         loc2.setLatitude(end.latitude);
         loc2.setLongitude(end.longitude);
-        Log.d("ddd", "getDistance: " + loc1.distanceTo(loc2));
         return loc1.distanceTo(loc2);
     }
 
@@ -149,7 +139,7 @@ public class TripInfoFragment extends Fragment {
                     mMap = googleMap;
                     m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng(), "Driver Location");
                     m2 = mapHelper.addMarker(mMap, trip.getRiderLatLng(), "Rider Location");
-                    mapHelper.justAddMarker(mMap, trip.getDropLatLng());
+                    mapHelper.justAddMarker(mMap, trip.getDropLatLng(), "Drop Off Location");
                 }
             });
         }

@@ -73,6 +73,7 @@ public class MapHelper {
     public MapHelper(MainActivity activity) {
         this.activity = activity;
         lm = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this.activity);
     }
 
     public void requestLocationPerms() {
@@ -126,10 +127,10 @@ public class MapHelper {
         });
     }
 
-    public void justAddMarker(GoogleMap mMap, LatLng point) {
+    public void justAddMarker(GoogleMap mMap, LatLng point, String placeName) {
         MarkerOptions options = new MarkerOptions();
         options.position(point);
-        options.title("Location");
+        options.title(placeName);
         options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         mMap.addMarker(options);
     }
@@ -180,35 +181,12 @@ public class MapHelper {
 
     @SuppressLint("MissingPermission")
     public boolean getLastLocation(ILastLocation callback) {
-        if (callback == null) {
-            callback = new ILastLocation() {
-                @Override
-                public void onFetch(double lat, double longi) {
-                }
-
-                @Override
-                public void onUpdate(double lat, double longi) {
-                }
-
-                @Override
-                public boolean stopAfterOneUpdate() {
-                    return true;
-                }
-            };
-        }
         if (hasLocationPerms()) {
             if (isLocationEnabled()) {
-                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this.activity);
-                ILastLocation finalCallback = callback;
                 mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
-                        Location location = task.getResult();
-                        if (location == null) {
-                            requestNewLocationData(finalCallback);
-                        } else {
-                            finalCallback.onFetch(location.getLatitude(), location.getLongitude());
-                        }
+                        requestNewLocationData(callback);
                     }
                 });
                 return true;
@@ -298,8 +276,6 @@ public class MapHelper {
     }
 
     public interface ILastLocation {
-
-        void onFetch(double lat, double longi);
 
         void onUpdate(double lat, double longi);
 

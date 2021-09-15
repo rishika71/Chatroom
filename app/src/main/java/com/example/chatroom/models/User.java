@@ -15,7 +15,29 @@ public class User implements Serializable {
 
     RideReq rideReq;
 
+    public boolean ride_offer = false;
+    public boolean ride_req = false;
+    public boolean ride_started = false;
+
     Trip trip;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", photoref='" + photoref + '\'' +
+                ", city='" + city + '\'' +
+                ", email='" + email + '\'' +
+                ", gender='" + gender + '\'' +
+                ", id='" + id + '\'' +
+                ", rides=" + rides +
+                ", chatroom=" + chatroom +
+                ", rideOffer=" + rideOffer +
+                ", rideReq=" + rideReq +
+                ", trip=" + trip +
+                '}';
+    }
 
     public ArrayList<String> getRides() {
         return rides;
@@ -77,11 +99,6 @@ public class User implements Serializable {
 
     public String getDisplayName() {
         return this.firstname + " " + this.lastname;
-    }
-
-    @Override
-    public String toString() {
-        return firstname + " " + lastname;
     }
 
     public String getFirstname() {

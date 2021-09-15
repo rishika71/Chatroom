@@ -40,7 +40,6 @@ public class MapsFragment extends Fragment {
     MapHelper mapHelper;
     private LatLng mOrigin;
     private LatLng mDestination;
-    public static final String REQUEST_RIDE = "request";
     User user;
     IRequestRide am;
 
@@ -125,10 +124,8 @@ public class MapsFragment extends Fragment {
                 if (mOrigin != null & mDestination != null) {
                     RideReq rideReq = new RideReq(new ArrayList<>(Arrays.asList(mOrigin.latitude, mOrigin.longitude)), new ArrayList<>(Arrays.asList(mDestination.latitude, mDestination.longitude)), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>());
                     user.setRideReq(rideReq);
-
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(REQUEST_RIDE, 1);
-                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_mapsFragment_to_chatroomFragment, bundle);
+                    user.ride_req = true;
+                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
 
                 } else {
                     Toast.makeText(getContext(), "Please select pickup and destination", Toast.LENGTH_SHORT).show();

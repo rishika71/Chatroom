@@ -131,18 +131,6 @@ public class ChatroomFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if (getArguments() != null) {
-            if (getArguments().getInt(MapsFragment.REQUEST_RIDE) == 1 && user.getRideReq() != null) {
-                rideReq = user.getRideReq();
-                sendRequestChat();
-            } else if (getArguments().getInt(RideDetailsFragment.RIDE_OFFER) == 1 && user.getRideOffer() != null) {
-                rideOffer = user.getRideOffer();
-                sendOfferChat();
-            } else if (getArguments().getInt(RideOfferDetailFragment.RIDE_STARTED) == 1 && user.getTrip() != null) {
-                trip = user.getTrip();
-                sendRideStartedChat();
-            }
-        }
     }
 
     @Override
@@ -161,6 +149,20 @@ public class ChatroomFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         getActivity().setTitle("Chatroom " + chatroom.getName());
+
+        if (user.ride_req && user.getRideReq() != null) {
+            rideReq = user.getRideReq();
+            user.ride_req = false;
+            sendRequestChat();
+        } else if (user.ride_offer && user.getRideOffer() != null) {
+            rideOffer = user.getRideOffer();
+            user.ride_offer = false;
+            sendOfferChat();
+        } else if (user.ride_started && user.getTrip() != null) {
+            trip = user.getTrip();
+            user.ride_started = false;
+            sendRideStartedChat();
+        }
 
         am.toggleDialog(true);
 
@@ -340,18 +342,12 @@ public class ChatroomFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Bundle bundle = new Bundle();
         switch (item.getItemId()) {
             case R.id.action_request_ride:
                 navController.navigate(R.id.action_chatroomFragment_to_mapsFragment);
                 return true;
             case R.id.action_send_location:
                 mapHelper.getLastLocation(new MapHelper.ILastLocation() {
-                    @Override
-                    public void onFetch(double lat, double longi) {
-                        sendLocationChat(lat, longi);
-                    }
-
                     @Override
                     public void onUpdate(double lat, double longi) {
                         sendLocationChat(lat, longi);
