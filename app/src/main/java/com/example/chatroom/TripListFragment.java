@@ -88,11 +88,12 @@ public class TripListFragment extends Fragment {
                 }
                 am.toggleDialog(false);
                 ArrayList<Trip> rides = new ArrayList<>();
-                int i = 0;
+                int i = user.getRides().size() + 1;
+                int j = 0;
                 for (QueryDocumentSnapshot doc : value) {
                     if (user.getRides().contains(doc.getId())) {
                         Trip ride = doc.toObject(Trip.class);
-                        ride.setNumber(++i);
+                        ride.setNumber(i - ++j);
                         ride.setId(doc.getId());
                         rides.add(ride);
                     }
