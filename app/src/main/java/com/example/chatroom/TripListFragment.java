@@ -86,6 +86,7 @@ public class TripListFragment extends Fragment {
                 if (value == null) {
                     return;
                 }
+                am.toggleDialog(false);
                 ArrayList<Trip> rides = new ArrayList<>();
                 int i = 0;
                 for (QueryDocumentSnapshot doc : value) {
