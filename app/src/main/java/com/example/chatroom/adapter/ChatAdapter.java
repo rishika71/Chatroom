@@ -214,7 +214,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
 
             } else if (chat.getOwnerId().equals(user.getId())) {
                 binding.imageView3.setVisibility(View.VISIBLE);
-                binding.textView8.setText("Your drive with " + names[2] + " has srarted!\nTap for more info");
+                binding.textView8.setText("Your drive with " + names[2] + " has started!\nTap for more info");
                 binding.textView8.setTypeface(null, Typeface.ITALIC);
             } else {
                 binding.getRoot().setVisibility(View.GONE);
