@@ -82,10 +82,14 @@ public class TripInfoFragment extends Fragment {
         mapHelper.getLastLocation(new MapHelper.ILastLocation() {
             @Override
             public void onFetch(double lat, double longi) {
+                HashMap<String, Object> upd = new HashMap<>();
+                upd.put(type, new ArrayList<>(Arrays.asList(lat, longi)));
+                db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
             }
 
             @Override
             public void onUpdate(double lat, double longi) {
+                Log.d("ddd", "onUpdate: hi");
                 HashMap<String, Object> upd = new HashMap<>();
                 upd.put(type, new ArrayList<>(Arrays.asList(lat, longi)));
                 db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
@@ -177,7 +181,6 @@ public class TripInfoFragment extends Fragment {
                 trip = value.toObject(Trip.class);
                 trip.setId(value.getId());
                 mapHelper.animateMarker(mMap, m1, trip.getDriverLatLng(), false);
-                mapHelper.animateMarker(mMap, m2, trip.getRiderLatLng(), false);
                 if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
                     db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false).addOnCompleteListener(new OnCompleteListener<Void>() {

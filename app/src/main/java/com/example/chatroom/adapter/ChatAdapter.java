@@ -189,6 +189,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             if (names[0].equals(user.getId())) {
                 binding.textView8.setText("You received a ride offer from " + names[1] + "!\nTap for more info");
                 binding.textView8.setTypeface(null, Typeface.ITALIC);
+                user.getRideReq().addOffer(chat.getId());
                 binding.getRoot().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
