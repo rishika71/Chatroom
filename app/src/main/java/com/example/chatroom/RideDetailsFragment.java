@@ -92,8 +92,8 @@ public class RideDetailsFragment extends Fragment {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
                     mMap = googleMap;
-                    mapHelper.addMarker(mMap, mOrigin);
-                    mapHelper.addMarker(mMap, mDestination);
+                    mapHelper.addMarker(mMap, mOrigin, "Origin");
+                    mapHelper.addMarker(mMap, mDestination, "Destination");
                 }
             });
         }

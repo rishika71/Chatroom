@@ -116,7 +116,7 @@ public class RideOfferDetailFragment extends Fragment {
                                 .into(binding.imageView8);
                     }
                     ArrayList<Double> driver_location = rideOffer.getDriver_location();
-                    mapHelper.addMarker(mMap, new LatLng(driver_location.get(0), driver_location.get(1)));
+                    mapHelper.addMarker(mMap, new LatLng(driver_location.get(0), driver_location.get(1)),"Driver Location");
                 } else {
                     task.getException().printStackTrace();
                 }

@@ -32,6 +32,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -62,6 +63,8 @@ public class MapHelper {
     MainActivity activity;
 
     ArrayList<LatLng> mMarkerPoints = new ArrayList<>();
+
+    List<Marker> markersList = new ArrayList<Marker>();
 
     LocationManager lm;
     LocationCallback mLocationCallback;
@@ -126,11 +129,12 @@ public class MapHelper {
     public void justAddMarker(GoogleMap mMap, LatLng point) {
         MarkerOptions options = new MarkerOptions();
         options.position(point);
+        options.title("Location");
         options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         mMap.addMarker(options);
     }
 
-    public Marker addMarker(GoogleMap mMap, LatLng point) {
+    public Marker addMarker(GoogleMap mMap, LatLng point, String placeName) {
         if (mMarkerPoints.size() > 1) {
             mMarkerPoints.clear();
             mMap.clear();
@@ -141,6 +145,7 @@ public class MapHelper {
         MarkerOptions options = new MarkerOptions();
 
         options.position(point);
+        options.title(placeName);
 
         if (mMarkerPoints.size() == 1) {
             options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
@@ -149,8 +154,22 @@ public class MapHelper {
         }
 
         Marker marker = mMap.addMarker(options);
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(point, 15);
-        mMap.animateCamera(cameraUpdate);
+
+        markersList.add(marker);
+        if(markersList.size() > 1){
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (Marker m : markersList) {
+                builder.include(m.getPosition());
+            }
+            LatLngBounds bounds = builder.build();
+            int padding = 50; // offset from edges of the map in pixels
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+            mMap.animateCamera(cameraUpdate);
+        }else{
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(point, 15);
+            mMap.animateCamera(cameraUpdate);
+        }
+
 
         if (mMarkerPoints.size() >= 2) {
             drawRoute(mMap, mMarkerPoints.get(0), mMarkerPoints.get(1));
