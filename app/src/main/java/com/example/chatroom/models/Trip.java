@@ -1,5 +1,7 @@
 package com.example.chatroom.models;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,6 +24,14 @@ public class Trip implements Serializable {
         this.started_at = started_at;
         this.rider = rider;
         this.driver = driver;
+    }
+
+    public LatLng getDriverLatLng() {
+        return new LatLng(driver_location.get(0), driver_location.get(1));
+    }
+
+    public LatLng getRiderLatLng() {
+        return new LatLng(rider_location.get(0), rider_location.get(1));
     }
 
     public Trip() {

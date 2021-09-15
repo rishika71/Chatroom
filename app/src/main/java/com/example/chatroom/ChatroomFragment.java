@@ -94,14 +94,17 @@ public class ChatroomFragment extends Fragment {
 
     public void removeRideStuff() {
         if (rideReq != null && rideReq.getRide_id() != null) {
+            user.setRideReq(null);
             db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(rideReq.getRide_id()).delete();
             db.collection(Utils.DB_RIDE_REQ).document(rideReq.getRide_id()).delete();
             db.collection(Utils.DB_RIDE_OFFER).document(rideOffer.getRide_id()).delete();
         }
         if (rideOffer != null && rideOffer.getRide_id() != null) {
+            user.setRideOffer(null);
             db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(rideOffer.getOffer_id()).delete();
         }
         if (trip != null && trip.getMsg_id() != null) {
+            user.setTrip(null);
             db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(trip.getMsg_id()).delete();
         }
     }

@@ -131,7 +131,7 @@ public class RideDetailsFragment extends Fragment {
 
                             user.setRideOffer(rideOffer);
 
-                            db.collection(Utils.DB_RIDE_REQ)
+                            db.collection(Utils.DB_RIDE_OFFER)
                                     .document(chat.getId())
                                     .set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override

@@ -15,15 +15,19 @@ import com.example.chatroom.databinding.FragmentMapsBinding;
 import com.example.chatroom.models.MapHelper;
 import com.example.chatroom.models.RideReq;
 import com.example.chatroom.models.User;
+import com.example.chatroom.models.Utils;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +40,7 @@ public class MapsFragment extends Fragment {
 
 
     AutocompleteSupportFragment autocompleteFragment, autocompleteFragment2;
-    private GoogleMap mMap;
+    GoogleMap mMap;
 
     MapHelper mapHelper;
     private LatLng mOrigin;
@@ -135,9 +139,22 @@ public class MapsFragment extends Fragment {
                     data.put("requester", rideReq.getRequester());
 
                     user.setRideReq(rideReq);
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(REQUEST_RIDE, 1);
-                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_mapsFragment_to_chatroomFragment, bundle);
+                    FirebaseFirestore.getInstance().collection(Utils.DB_RIDE_REQ)
+                            .document(rideReq.getRide_id())
+                            .set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Bundle bundle = new Bundle();
+                                bundle.putInt(REQUEST_RIDE, 1);
+                                Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_mapsFragment_to_chatroomFragment, bundle);
+                            } else {
+                                task.getException().printStackTrace();
+                            }
+                        }
+                    });
+
+
                 } else {
                     Toast.makeText(getContext(), "Please select pickup and destination", Toast.LENGTH_SHORT).show();
                 }
