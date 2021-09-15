@@ -143,6 +143,7 @@ public class RideOfferDetailFragment extends Fragment {
                 db.collection(Utils.DB_TRIPS).add(data).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
+                        am.toggleDialog(false);
                         if (task.isSuccessful()) {
                             trip.setId(task.getResult().getId());
                             user.setTrip(trip);

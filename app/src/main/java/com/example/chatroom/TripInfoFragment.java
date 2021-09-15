@@ -121,7 +121,7 @@ public class TripInfoFragment extends Fragment {
 
     public void setImage(ImageView image, String uid, String photoRef) {
         if (photoRef != null) {
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(uid).child(user.getPhotoref());
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(uid).child(photoRef);
             GlideApp.with(binding.getRoot())
                     .load(storageReference)
                     .into(image);
