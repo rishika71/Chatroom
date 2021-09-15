@@ -8,11 +8,9 @@ public class Chat implements Serializable {
 
     public static final int CHAT_MESSAGE = 44;
     public static final int CHAT_LOCATION = 45;
-    public static final int CHAT_REQUEST = 46;
-
-    public static final int OWNER_ID = 0;
-    public static final int OWNER_NAME = 1;
-    public static final int OWNER_REF = 2;
+    public static final int CHAT_RIDE_REQUEST = 46;
+    public static final int CHAT_RIDE_OFFER = 47;
+    public static final int CHAT_RIDE_STARTED = 48;
 
     public String id;
 
@@ -31,11 +29,11 @@ public class Chat implements Serializable {
     }
 
     public String getOwnerId() {
-        return owner.get(OWNER_ID);
+        return owner.get(Utils.ID);
     }
 
     public String getOwnerRef() {
-        return owner.get(OWNER_REF);
+        return owner.get(Utils.PHOTO_REF);
     }
 
     public Date created_at;
@@ -74,21 +72,10 @@ public class Chat implements Serializable {
     }
 
     public String getOwnerName() {
-        return owner.get(OWNER_NAME);
+        return owner.get(Utils.NAME);
     }
 
     public Date getCreated_at() {
         return (created_at == null ? new Date() : created_at);
-    }
-
-    @Override
-    public String toString() {
-        return "Chat{" +
-                "id='" + id + '\'' +
-                ", content='" + content + '\'' +
-                ", owner='" + owner + '\'' +
-                ", created_at=" + created_at +
-                ", likedBy=" + likedBy +
-                '}';
     }
 }

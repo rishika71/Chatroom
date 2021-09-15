@@ -8,7 +8,35 @@ public class User implements Serializable {
 
     Chatroom chatroom;
 
-    Ride ride;
+    RideOffer rideOffer;
+
+    RideReq rideReq;
+
+    Trip trip;
+
+    public Trip getTrip() {
+        return trip;
+    }
+
+    public void setTrip(Trip trip) {
+        this.trip = trip;
+    }
+
+    public RideOffer getRideOffer() {
+        return rideOffer;
+    }
+
+    public void setRideOffer(RideOffer rideOffer) {
+        this.rideOffer = rideOffer;
+    }
+
+    public RideReq getRideReq() {
+        return rideReq;
+    }
+
+    public void setRideReq(RideReq rideReq) {
+        this.rideReq = rideReq;
+    }
 
     public Chatroom getChatroom() {
         return chatroom;
@@ -16,14 +44,6 @@ public class User implements Serializable {
 
     public void setChatroom(Chatroom chatroom) {
         this.chatroom = chatroom;
-    }
-
-    public Ride getRide() {
-        return ride;
-    }
-
-    public void setRide(Ride ride) {
-        this.ride = ride;
     }
 
     public User() {

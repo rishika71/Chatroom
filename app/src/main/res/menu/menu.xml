@@ -14,5 +14,15 @@
         android:orderInCategory="101"
         android:title="Send Location"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_your_rides"
+        android:orderInCategory="102"
+        android:title="Your Rides"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_your_drives"
+        android:orderInCategory="103"
+        android:title="Your Drives"
+        app:showAsAction="never" />
 
 </menu>

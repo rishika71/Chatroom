@@ -3,12 +3,14 @@ package com.example.chatroom.adapter;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatroom.GlideApp;
@@ -157,7 +159,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                     binding.getRoot().getContext().startActivity(i);
                 }
             });
-        } else if (chat.getChatType() == Chat.CHAT_REQUEST) {
+        } else if (chat.getChatType() == Chat.CHAT_RIDE_REQUEST) {
             binding.imageView.setVisibility(View.GONE);
             if (!chat.getOwnerId().equals(cur_user.getUid())) {
                 binding.textView8.setText("Requested a Ride!\nTap for more info");
@@ -165,13 +167,62 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                 binding.getRoot().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String[] loc = chat.getContent().split("\n");
-
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(Utils.DB_CHAT, chat);
+                        Navigation.findNavController(holder.itemView).navigate(R.id.action_chatroomFragment_to_rideDetailsFragment, bundle);
                     }
                 });
             } else {
                 binding.imageView3.setVisibility(View.VISIBLE);
                 binding.textView8.setText("You requested a ride in this chatroom!");
+                binding.textView8.setTypeface(null, Typeface.ITALIC);
+                binding.getRoot().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String[] loc = chat.getContent().split("\n");
+                        String url = "http://maps.google.com?z=12&saddr=" + loc[0] + "," + loc[1] + "&daddr=" + loc[2] + "," + loc[3];
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(url));
+                        binding.getRoot().getContext().startActivity(i);
+                    }
+                });
+            }
+        } else if (chat.getChatType() == Chat.CHAT_RIDE_OFFER) {
+            binding.imageView.setVisibility(View.GONE);
+            String[] names = chat.getContent().split("\n");
+            if (names[0].equals(cur_user.getUid())) {
+                binding.textView8.setText("You received a ride offer from " + names[1] + "!\nTap for more info");
+                binding.textView8.setTypeface(null, Typeface.ITALIC);
+                binding.getRoot().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(Utils.DB_CHAT, chat);
+                        Navigation.findNavController(holder.itemView).navigate(R.id.action_chatroomFragment_to_rideOfferDetailFragment, bundle);
+                    }
+                });
+            } else if (chat.getOwnerId().equals(cur_user.getUid())) {
+                binding.imageView3.setVisibility(View.VISIBLE);
+                binding.textView8.setText("You sent a ride offer to " + names[2] + "!");
+                binding.textView8.setTypeface(null, Typeface.ITALIC);
+            }
+        } else if (chat.getChatType() == Chat.CHAT_RIDE_STARTED) {
+            binding.imageView.setVisibility(View.GONE);
+            String[] names = chat.getContent().split("\n");
+            if (names[0].equals(cur_user.getUid())) {
+                binding.textView8.setText("Your ride with " + names[2] + " has started!\nTap for more info");
+                binding.textView8.setTypeface(null, Typeface.ITALIC);
+                binding.getRoot().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(Utils.DB_CHAT, chat);
+                        Navigation.findNavController(holder.itemView).navigate(R.id.action_chatroomFragment_to_rideOfferDetailFragment, bundle);
+                    }
+                });
+            } else if (chat.getOwnerId().equals(cur_user.getUid())) {
+                binding.imageView3.setVisibility(View.VISIBLE);
+                binding.textView8.setText("Your drive with " + names[1] + " has srarted!\nTap for more info");
                 binding.textView8.setTypeface(null, Typeface.ITALIC);
                 binding.getRoot().setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -190,13 +241,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             @Override
             public void onClick(View view) {
                 am.toggleDialog(true);
+                db.collection(Utils.DB_RIDE_REQ).document(chat.getId()).delete();
+                db.collection(Utils.DB_RIDE_OFFER).document(chat.getId()).delete();
                 DocumentReference dbc = db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(chat.getId());
                 dbc.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         am.toggleDialog(false);
                         if (task.isSuccessful()) {
-                            Toast.makeText(view.getContext(), "Message Deleted", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(view.getContext(), "Deleted", Toast.LENGTH_SHORT).show();
                         } else {
                             task.getException().printStackTrace();
                         }
