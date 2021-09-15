@@ -8,19 +8,25 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chatroom.adapter.ChatAdapter;
 import com.example.chatroom.adapter.ChatroomAdapter;
+import com.example.chatroom.models.MapHelper;
 import com.example.chatroom.models.User;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.ILogin, MapsFragment.IRequestRide, ChatroomFragment.IChat, CreateNewAccountFragment.IRegister, ChatroomsFragment.IChatRoom, UsersFragment.IUsers, EditProfileFragment.IEditUser, UserProfileFragment.IUserProfile, ChatroomAdapter.IChatRoomAdapter, ChatAdapter.IChatAdapter {
+public class MainActivity extends AppCompatActivity implements LoginFragment.ILogin, TripListFragment.ITripList, RideDetailsFragment.IRiderDetails, MapsFragment.IRequestRide, ChatroomFragment.IChat, CreateNewAccountFragment.IRegister, ChatroomsFragment.IChatRoom, UsersFragment.IUsers, EditProfileFragment.IEditUser, UserProfileFragment.IUserProfile, ChatroomAdapter.IChatRoomAdapter, ChatAdapter.IChatAdapter {
+
+    ProgressDialog dialog;
+    User user = null;
+    private MapHelper mhelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.mhelper = new MapHelper(this);
     }
 
-    ProgressDialog dialog;
-
-    User user = null;
+    public MapHelper getMapHelper() {
+        return mhelper;
+    }
 
     public User getUser() {
         return user;

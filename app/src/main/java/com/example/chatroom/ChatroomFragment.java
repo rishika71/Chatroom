@@ -1,13 +1,7 @@
 package com.example.chatroom;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -28,14 +21,12 @@ import com.example.chatroom.adapter.ChatAdapter;
 import com.example.chatroom.databinding.FragmentChatroomBinding;
 import com.example.chatroom.models.Chat;
 import com.example.chatroom.models.Chatroom;
-import com.example.chatroom.models.Ride;
+import com.example.chatroom.models.MapHelper;
+import com.example.chatroom.models.RideOffer;
+import com.example.chatroom.models.RideReq;
+import com.example.chatroom.models.Trip;
 import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -57,25 +48,27 @@ import java.util.Map;
 
 public class ChatroomFragment extends Fragment {
 
-    final private String TAG = "demo";
-
     FragmentChatroomBinding binding;
 
     IChat am;
 
     FirebaseAuth mAuth;
 
-    public static final int REQUEST_LOCATION = 72;
+    public static final String TYPE = "type";
 
     User user;
 
     FirebaseFirestore db;
 
-    FusedLocationProviderClient mFusedLocationClient;
-
     Chatroom chatroom;
 
-    Ride ride;
+    MapHelper mapHelper;
+
+    RideReq rideReq;
+
+    Trip trip;
+
+    RideOffer rideOffer;
 
     NavController navController;
 
@@ -83,12 +76,13 @@ public class ChatroomFragment extends Fragment {
     public void onStop() {
         super.onStop();
         removeViewer();
+        mapHelper.stopUpdates();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        removeRideRequest();
+        removeRideStuff();
     }
 
     public void removeViewer() {
@@ -98,10 +92,20 @@ public class ChatroomFragment extends Fragment {
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd);
     }
 
-    public void removeRideRequest() {
-        if (ride != null && ride.getMsg_id() != null) {
-            DocumentReference dbc = db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(ride.getMsg_id());
-            dbc.delete();
+    public void removeRideStuff() {
+        if (rideReq != null && rideReq.getRide_id() != null) {
+            user.setRideReq(null);
+            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(rideReq.getRide_id()).delete();
+            db.collection(Utils.DB_RIDE_REQ).document(rideReq.getRide_id()).delete();
+            db.collection(Utils.DB_RIDE_OFFER).document(rideOffer.getRide_id()).delete();
+        }
+        if (rideOffer != null && rideOffer.getRide_id() != null) {
+            user.setRideOffer(null);
+            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(rideOffer.getOffer_id()).delete();
+        }
+        if (trip != null && trip.getMsg_id() != null) {
+            user.setTrip(null);
+            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(trip.getMsg_id()).delete();
         }
     }
 
@@ -117,6 +121,7 @@ public class ChatroomFragment extends Fragment {
         chatroom = user.getChatroom();
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
+        mapHelper = am.getMapHelper();
     }
 
     @Override
@@ -124,13 +129,17 @@ public class ChatroomFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (getArguments() != null) {
-            if (getArguments().getInt(MapsFragment.REQUEST_RIDE) == 1 && user.getRide() != null) {
-                ride = user.getRide();
+            if (getArguments().getInt(MapsFragment.REQUEST_RIDE) == 1 && user.getRideReq() != null) {
+                rideReq = user.getRideReq();
                 sendRequestChat();
+            } else if (getArguments().getInt(RideDetailsFragment.RIDE_OFFER) == 1 && user.getRideOffer() != null) {
+                rideOffer = user.getRideOffer();
+                sendOfferChat();
+            } else if (getArguments().getInt(RideOfferDetailFragment.RIDE_STARTED) == 1 && user.getTrip() != null) {
+                trip = user.getTrip();
+                sendRideStartedChat();
             }
         }
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
     }
 
     @Override
@@ -217,18 +226,58 @@ public class ChatroomFragment extends Fragment {
         return view;
     }
 
-    public void sendRequestChat() {
+    public void sendRideStartedChat() {
         HashMap<String, Object> chat = new HashMap<>();
         chat.put("created_at", FieldValue.serverTimestamp());
-        chat.put("content", ride.getPickup().latitude + "\n" + ride.getPickup().longitude + "\n" + ride.getDrop().latitude + "\n" + ride.getDrop().longitude);
+        chat.put("content", trip.getDriverId() + "\n" + trip.getDriverName() + "\n" + trip.getRiderName());
         chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
-        chat.put("chatType", Chat.CHAT_REQUEST);
+        chat.put("chatType", Chat.CHAT_RIDE_STARTED);
         chat.put("likedBy", new ArrayList<>());
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
             public void onComplete(@NonNull Task<DocumentReference> task) {
                 if (task.isSuccessful()) {
-                    ride.setMsg_id(task.getResult().getId());
+                    trip.setMsg_id(task.getResult().getId());
+                    Toast.makeText(getContext(), "Your trip has started", Toast.LENGTH_SHORT).show();
+                } else {
+                    task.getException().printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void sendOfferChat() {
+        HashMap<String, Object> chat = new HashMap<>();
+        chat.put("created_at", FieldValue.serverTimestamp());
+        chat.put("content", rideOffer.getRiderId() + "\n" + rideOffer.getOfferorName() + "\n" + rideOffer.getRiderName());
+        chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
+        chat.put("chatType", Chat.CHAT_RIDE_OFFER);
+        chat.put("likedBy", new ArrayList<>());
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                if (task.isSuccessful()) {
+                    rideOffer.setOffer_id(task.getResult().getId());
+                    Toast.makeText(getContext(), "You sent a ride offer", Toast.LENGTH_SHORT).show();
+                } else {
+                    task.getException().printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void sendRequestChat() {
+        HashMap<String, Object> chat = new HashMap<>();
+        chat.put("created_at", FieldValue.serverTimestamp());
+        chat.put("content", rideReq.getPickup().latitude + "\n" + rideReq.getPickup().longitude + "\n" + rideReq.getDrop().latitude + "\n" + rideReq.getDrop().longitude);
+        chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
+        chat.put("chatType", Chat.CHAT_RIDE_REQUEST);
+        chat.put("likedBy", new ArrayList<>());
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).add(chat).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                if (task.isSuccessful()) {
+                    rideReq.setRide_id(task.getResult().getId());
                     Toast.makeText(getContext(), "You requested a ride", Toast.LENGTH_SHORT).show();
                 } else {
                     task.getException().printStackTrace();
@@ -257,12 +306,42 @@ public class ChatroomFragment extends Fragment {
         });
     }
 
-    interface IChat {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Bundle bundle = new Bundle();
+        switch (item.getItemId()) {
+            case R.id.action_request_ride:
+                navController.navigate(R.id.action_chatroomFragment_to_mapsFragment);
+                return true;
+            case R.id.action_send_location:
+                mapHelper.getLastLocation(new MapHelper.ILastLocation() {
+                    @Override
+                    public void onFetch(double lat, double longi) {
+                        sendLocationChat(lat, longi);
+                    }
 
-        void toggleDialog(boolean show);
+                    @Override
+                    public void onUpdate(double lat, double longi) {
+                        sendLocationChat(lat, longi);
+                    }
 
-        User getUser();
-
+                    @Override
+                    public boolean stopAfterOneUpdate() {
+                        return true;
+                    }
+                });
+                return true;
+            case R.id.action_your_rides:
+                bundle.putString(TYPE, Utils.RIDE_TYPE);
+                navController.navigate(R.id.action_chatroomFragment_to_tripListFragment, bundle);
+                return true;
+            case R.id.action_your_drives:
+                bundle.putString(TYPE, Utils.DRIVE_TYPE);
+                navController.navigate(R.id.action_chatroomFragment_to_tripListFragment, bundle);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -271,86 +350,18 @@ public class ChatroomFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    @SuppressLint("MissingPermission")
-    public void getLastLocation() {
-        if (hasLocationPerms()) {
-            LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            if (isLocationEnabled(lm)) {
-                mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        Location location = task.getResult();
-                        if (location == null) {
-                            requestNewLocationData();
-                        } else {
-                            sendLocationChat(location.getLatitude(), location.getLongitude());
-                        }
-                    }
-                });
-            } else {
-                Toast.makeText(getContext(), "Please turn your location on!", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            requestLocationPerms();
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void requestNewLocationData() {
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(5);
-        mLocationRequest.setFastestInterval(0);
-        mLocationRequest.setNumUpdates(1);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest, new LocationCallback() {
-            public void onLocationResult(LocationResult locationResult) {
-                Location location = locationResult.getLastLocation();
-                sendLocationChat(location.getLatitude(), location.getLongitude());
-            }
-        }, Looper.myLooper());
-    }
-
-    public boolean isLocationEnabled(LocationManager lm) {
-        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_LOCATION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getLastLocation();
-            }
-        }
-    }
-
     public void sendLocationChat(double lat, double longi) {
         sendChat(lat + "\n" + longi, Chat.CHAT_LOCATION);
     }
 
-    public void requestLocationPerms() {
-        ActivityCompat.requestPermissions(getActivity(), new String[]{
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-    }
+    interface IChat {
 
-    public boolean hasLocationPerms() {
-        return ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
+        void toggleDialog(boolean show);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_request_ride:
-                navController.navigate(R.id.action_chatroomFragment_to_mapsFragment);
-                return true;
-            case R.id.action_send_location:
-                getLastLocation();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        User getUser();
+
+        MapHelper getMapHelper();
+
     }
 
 }
