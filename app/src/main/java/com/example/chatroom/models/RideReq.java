@@ -8,6 +8,8 @@ public class RideReq implements Serializable {
     public ArrayList<Double> pickup_location;
     public ArrayList<Double> drop_location;
 
+    public ArrayList<String> offer_ids = new ArrayList<>();
+
     public String id, msg_id;
     public ArrayList<String> requester;
     public ArrayList<String> offer_msgs;
@@ -17,6 +19,18 @@ public class RideReq implements Serializable {
         this.drop_location = drop;
         this.requester = requester;
         this.offer_msgs = offer_msgs;
+    }
+
+    public void addOffer(String id) {
+        if (!this.offer_ids.contains(id)) this.offer_ids.add(id);
+    }
+
+    public ArrayList<String> getOffer_ids() {
+        return offer_ids;
+    }
+
+    public void setOffer_ids(ArrayList<String> offer_ids) {
+        this.offer_ids = offer_ids;
     }
 
     public RideReq() {

@@ -97,6 +97,8 @@ public class ChatroomFragment extends Fragment {
             user.setRideReq(null);
             db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(rideReq.getMsg_id()).delete();
             db.collection(Utils.DB_RIDE_REQ).document(rideReq.getMsg_id()).delete();
+            for (String id : rideReq.getOffer_ids())
+                db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).document(id).delete();
         }
         if (rideOffer != null && rideOffer.getMsg_id() != null) {
             user.setRideOffer(null);

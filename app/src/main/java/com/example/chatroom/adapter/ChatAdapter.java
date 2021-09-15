@@ -189,6 +189,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             if (names[0].equals(user.getId())) {
                 binding.textView8.setText("You received a ride offer from " + names[1] + "!\nTap for more info");
                 binding.textView8.setTypeface(null, Typeface.ITALIC);
+                user.getRideReq().addOffer(chat.getId());
                 binding.getRoot().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -214,7 +215,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
 
             } else if (chat.getOwnerId().equals(user.getId())) {
                 binding.imageView3.setVisibility(View.VISIBLE);
-                binding.textView8.setText("Your drive with " + names[2] + " has srarted!\nTap for more info");
+                binding.textView8.setText("Your drive with " + names[2] + " has started!\nTap for more info");
                 binding.textView8.setTypeface(null, Typeface.ITALIC);
             } else {
                 binding.getRoot().setVisibility(View.GONE);
