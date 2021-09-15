@@ -15,23 +15,18 @@ import com.example.chatroom.databinding.FragmentMapsBinding;
 import com.example.chatroom.models.MapHelper;
 import com.example.chatroom.models.RideReq;
 import com.example.chatroom.models.User;
-import com.example.chatroom.models.Utils;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 
 public class MapsFragment extends Fragment {
@@ -128,32 +123,12 @@ public class MapsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (mOrigin != null & mDestination != null) {
-                    RideReq rideReq = new RideReq(mOrigin, mDestination, new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>());
-
-                    HashMap<String, Object> data = new HashMap<>();
-                    data.put("ride_id", rideReq.getRide_id());
-                    data.put("pickup_lat", rideReq.getPickup().latitude);
-                    data.put("pickup_long", rideReq.getPickup().longitude);
-                    data.put("drop_lat", rideReq.getDrop().latitude);
-                    data.put("drop_long", rideReq.getDrop().longitude);
-                    data.put("requester", rideReq.getRequester());
-
+                    RideReq rideReq = new RideReq(new ArrayList<>(Arrays.asList(mOrigin.latitude, mOrigin.longitude)), new ArrayList<>(Arrays.asList(mDestination.latitude, mDestination.longitude)), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>());
                     user.setRideReq(rideReq);
-                    FirebaseFirestore.getInstance().collection(Utils.DB_RIDE_REQ)
-                            .document(rideReq.getRide_id())
-                            .set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Bundle bundle = new Bundle();
-                                bundle.putInt(REQUEST_RIDE, 1);
-                                Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_mapsFragment_to_chatroomFragment, bundle);
-                            } else {
-                                task.getException().printStackTrace();
-                            }
-                        }
-                    });
 
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(REQUEST_RIDE, 1);
+                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_mapsFragment_to_chatroomFragment, bundle);
 
                 } else {
                     Toast.makeText(getContext(), "Please select pickup and destination", Toast.LENGTH_SHORT).show();

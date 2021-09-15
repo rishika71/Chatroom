@@ -10,7 +10,6 @@ public class Utils {
     public static final String DB_CHATROOM = "chatroom";
     public static final String DB_RIDE_OFFER = "ride_offer";
     public static final String DB_RIDE_REQ = "ride_req";
-    public static final String DB_TRIP = "trip";
     public static final String DB_TRIPS = "trips";
 
     public static final String RIDE_TYPE = "Ride";

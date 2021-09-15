@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -38,8 +39,6 @@ public class TripListFragment extends Fragment {
 
     FirebaseFirestore db;
 
-    String type;
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -53,18 +52,10 @@ public class TripListFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        if (getArguments() != null) {
-            type = getArguments().getString(ChatroomFragment.TYPE);
-        }
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getActivity().setTitle("Your " + type + "s");
+
+        getActivity().setTitle("Your Trips");
         binding = FragmentTripListBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
@@ -76,9 +67,16 @@ public class TripListFragment extends Fragment {
                 llm.getOrientation());
         binding.tripview.addItemDecoration(dividerItemDecoration);
 
+        binding.button8.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+            }
+        });
+
         am.toggleDialog(true);
 
-        db.collection(Utils.DB_TRIP).document(user.getId()).collection(Utils.DB_TRIPS).orderBy("started_at", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection(Utils.DB_TRIPS).orderBy("started_at", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -91,14 +89,14 @@ public class TripListFragment extends Fragment {
                 ArrayList<Trip> rides = new ArrayList<>();
                 int i = 0;
                 for (QueryDocumentSnapshot doc : value) {
-                    if (doc.get("type") == type) {
+                    if (user.getRides().contains(doc.getId())) {
                         Trip ride = doc.toObject(Trip.class);
                         ride.setNumber(++i);
                         ride.setId(doc.getId());
                         rides.add(ride);
                     }
                 }
-                binding.tripview.setAdapter(new TripAdapter(type, user, rides));
+                binding.tripview.setAdapter(new TripAdapter(user, rides));
             }
         });
 

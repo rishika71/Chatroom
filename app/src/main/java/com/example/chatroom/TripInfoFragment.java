@@ -1,6 +1,7 @@
-package com.example.chatroom.adapter;
+package com.example.chatroom;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import com.example.chatroom.GlideApp;
-import com.example.chatroom.R;
 import com.example.chatroom.databinding.FragmentTripInfoBinding;
 import com.example.chatroom.models.MapHelper;
 import com.example.chatroom.models.Trip;
@@ -23,7 +22,10 @@ import com.example.chatroom.models.Utils;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -36,7 +38,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class TripInfoFragment extends Fragment {
-
 
     FragmentTripInfoBinding binding;
 
@@ -72,7 +73,7 @@ public class TripInfoFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (getArguments() != null) {
-            trip = (Trip) getArguments().getSerializable(Utils.DB_TRIP);
+            trip = (Trip) getArguments().getSerializable(Utils.DB_TRIPS);
         }
     }
 
@@ -86,7 +87,7 @@ public class TripInfoFragment extends Fragment {
             public void onUpdate(double lat, double longi) {
                 HashMap<String, Object> upd = new HashMap<>();
                 upd.put(type, new ArrayList<>(Arrays.asList(lat, longi)));
-                db.collection(Utils.DB_TRIP).document(user.getId()).collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
+                db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
             }
 
             @Override
@@ -100,6 +101,16 @@ public class TripInfoFragment extends Fragment {
     public void onStop() {
         super.onStop();
         mapHelper.stopUpdates();
+    }
+
+    public float getDistance(LatLng start, LatLng end) {
+        Location loc1 = new Location("");
+        loc1.setLatitude(start.latitude);
+        loc1.setLongitude(start.longitude);
+        Location loc2 = new Location("");
+        loc2.setLatitude(end.latitude);
+        loc2.setLongitude(end.longitude);
+        return loc1.distanceTo(loc2);
     }
 
     public void setImage(ImageView image, String uid, String photoRef) {
@@ -132,6 +143,7 @@ public class TripInfoFragment extends Fragment {
                     mMap = googleMap;
                     m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng());
                     m2 = mapHelper.addMarker(mMap, trip.getRiderLatLng());
+                    mapHelper.justAddMarker(mMap, trip.getDropLatLng());
                 }
             });
         }
@@ -145,12 +157,12 @@ public class TripInfoFragment extends Fragment {
         setImage(binding.imageView10, trip.getDriverId(), trip.getDriverRef());
 
         if (user.getId().equals(trip.getDriverId())) {
-            updLocation(Utils.DRIVE_TYPE);
+            updLocation("driver_location");
         } else {
-            updLocation(Utils.RIDE_TYPE);
+            updLocation("rider_location");
         }
 
-        db.collection(Utils.DB_TRIP).document(user.getId()).collection(Utils.DB_TRIPS).document(trip.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        db.collection(Utils.DB_TRIPS).document(trip.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -164,6 +176,16 @@ public class TripInfoFragment extends Fragment {
                 trip.setId(value.getId());
                 mapHelper.animateMarker(mMap, m1, trip.getDriverLatLng(), false);
                 mapHelper.animateMarker(mMap, m2, trip.getRiderLatLng(), false);
+                if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
+                    trip.setOngoing(false);
+                    db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(getContext(), "Ride finished!", Toast.LENGTH_LONG).show();
+                            Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+                        }
+                    });
+                }
             }
         });
 

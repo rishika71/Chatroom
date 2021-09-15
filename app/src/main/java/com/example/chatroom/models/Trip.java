@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class Trip implements Serializable {
 
-    String id, type;
+    String id;
 
     int number;
     boolean ongoing = true;
@@ -18,12 +18,16 @@ public class Trip implements Serializable {
     ArrayList<String> driver;
     ArrayList<Double> rider_location;
     ArrayList<Double> driver_location;
+    ArrayList<Double> drop_location;
 
-    public Trip(String ride_id, Date started_at, ArrayList<String> rider, ArrayList<String> driver) {
+    public Trip(String ride_id, Date started_at, ArrayList<String> rider, ArrayList<String> driver, ArrayList<Double> rider_location, ArrayList<Double> driver_location, ArrayList<Double> drop_location) {
         this.ride_id = ride_id;
         this.started_at = started_at;
         this.rider = rider;
         this.driver = driver;
+        this.rider_location = rider_location;
+        this.driver_location = driver_location;
+        this.drop_location = drop_location;
     }
 
     public LatLng getDriverLatLng() {
@@ -34,15 +38,11 @@ public class Trip implements Serializable {
         return new LatLng(rider_location.get(0), rider_location.get(1));
     }
 
+    public LatLng getDropLatLng() {
+        return new LatLng(drop_location.get(0), drop_location.get(1));
+    }
+
     public Trip() {
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getStatus() {
@@ -75,6 +75,14 @@ public class Trip implements Serializable {
 
     public String getMsg_id() {
         return msg_id;
+    }
+
+    public ArrayList<Double> getDrop_location() {
+        return drop_location;
+    }
+
+    public void setDrop_location(ArrayList<Double> drop_location) {
+        this.drop_location = drop_location;
     }
 
     public void setMsg_id(String msg_id) {

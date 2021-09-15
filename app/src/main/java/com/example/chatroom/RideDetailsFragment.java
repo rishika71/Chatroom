@@ -21,15 +21,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class RideDetailsFragment extends Fragment {
 
@@ -84,6 +81,9 @@ public class RideDetailsFragment extends Fragment {
 
         String[] loc = chat.getContent().split("\n");
 
+        ArrayList<Double> pickup = new ArrayList<>(Arrays.asList(Double.parseDouble(loc[0]), Double.parseDouble(loc[1])));
+        ArrayList<Double> drop = new ArrayList<>(Arrays.asList(Double.parseDouble(loc[2]), Double.parseDouble(loc[3])));
+
         LatLng mOrigin = new LatLng(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
         LatLng mDestination = new LatLng(Double.parseDouble(loc[2]), Double.parseDouble(loc[3]));
 
@@ -121,31 +121,11 @@ public class RideDetailsFragment extends Fragment {
 
                         @Override
                         public void onUpdate(double lat, double longi) {
-                            RideOffer rideOffer = new RideOffer(chat.getId(), new ArrayList<>(Arrays.asList(chat.getOwnerId(), chat.getOwnerName(), chat.getOwnerRef())), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>(Arrays.asList(lat, longi)));
-
-                            HashMap<String, Object> data = new HashMap<>();
-                            data.put("ride_id", chat.getId());
-                            data.put("rider", rideOffer.getRider());
-                            data.put("offeror", rideOffer.getOfferor());
-                            data.put("location", rideOffer.getLocation());
-
+                            RideOffer rideOffer = new RideOffer(chat.getId(), new ArrayList<>(Arrays.asList(chat.getOwnerId(), chat.getOwnerName(), chat.getOwnerRef())), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>(Arrays.asList(lat, longi)), pickup, drop);
                             user.setRideOffer(rideOffer);
-
-                            db.collection(Utils.DB_RIDE_OFFER)
-                                    .document(chat.getId())
-                                    .set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Bundle bundle = new Bundle();
-                                        bundle.putInt(RIDE_OFFER, 1);
-                                        Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_rideDetailsFragment_to_chatroomFragment, bundle);
-                                    } else {
-                                        task.getException().printStackTrace();
-                                    }
-                                }
-                            });
-
+                            Bundle bundle = new Bundle();
+                            bundle.putInt(RIDE_OFFER, 1);
+                            Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).navigate(R.id.action_rideDetailsFragment_to_chatroomFragment, bundle);
                         }
 
                         @Override
