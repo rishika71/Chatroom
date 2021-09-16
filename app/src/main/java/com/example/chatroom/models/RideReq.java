@@ -10,15 +10,34 @@ public class RideReq implements Serializable {
 
     public ArrayList<String> offer_ids = new ArrayList<>();
 
+    String pickup_name, drop_name;
     public String id, msg_id;
     public ArrayList<String> requester;
     public ArrayList<String> offer_msgs;
 
-    public RideReq(ArrayList<Double> pickup, ArrayList<Double> drop, ArrayList<String> requester, ArrayList<String> offer_msgs) {
+    public RideReq(ArrayList<Double> pickup, ArrayList<Double> drop, ArrayList<String> requester, ArrayList<String> offer_msgs, String pickup_name, String drop_name) {
         this.pickup_location = pickup;
         this.drop_location = drop;
         this.requester = requester;
         this.offer_msgs = offer_msgs;
+        this.pickup_name = pickup_name;
+        this.drop_name = drop_name;
+    }
+
+    public String getPickup_name() {
+        return pickup_name;
+    }
+
+    public void setPickup_name(String pickup_name) {
+        this.pickup_name = pickup_name;
+    }
+
+    public String getDrop_name() {
+        return drop_name;
+    }
+
+    public void setDrop_name(String drop_name) {
+        this.drop_name = drop_name;
     }
 
     public void addOffer(String id) {

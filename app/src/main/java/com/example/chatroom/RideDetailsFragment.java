@@ -38,6 +38,7 @@ public class RideDetailsFragment extends Fragment {
     MapHelper mapHelper;
     FirebaseFirestore db;
     private GoogleMap mMap;
+    String pickup_name, drop_name;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -79,6 +80,9 @@ public class RideDetailsFragment extends Fragment {
                 .findFragmentById(R.id.mapView3);
 
         String[] loc = chat.getContent().split("\n");
+
+        pickup_name = loc[4];
+        drop_name = loc[5];
 
         ArrayList<Double> pickup = new ArrayList<>(Arrays.asList(Double.parseDouble(loc[0]), Double.parseDouble(loc[1])));
         ArrayList<Double> drop = new ArrayList<>(Arrays.asList(Double.parseDouble(loc[2]), Double.parseDouble(loc[3])));
@@ -144,7 +148,7 @@ public class RideDetailsFragment extends Fragment {
     }
 
     public void sendRideOffer(double lat, double longi, ArrayList<Double> pickup, ArrayList<Double> drop) {
-        RideOffer rideOffer = new RideOffer(chat.getId(), new ArrayList<>(Arrays.asList(chat.getOwnerId(), chat.getOwnerName(), chat.getOwnerRef())), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>(Arrays.asList(lat, longi)), pickup, drop);
+        RideOffer rideOffer = new RideOffer(chat.getId(), new ArrayList<>(Arrays.asList(chat.getOwnerId(), chat.getOwnerName(), chat.getOwnerRef())), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>(Arrays.asList(lat, longi)), pickup, drop, pickup_name, drop_name);
         user.setRideOffer(rideOffer);
         user.ride_offer = true;
         Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();

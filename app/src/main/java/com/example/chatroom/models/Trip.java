@@ -12,7 +12,7 @@ public class Trip implements Serializable {
 
     int number;
     boolean ongoing = true;
-    String ride_id, msg_id;
+    String ride_id, msg_id, pickup_name, drop_name;
     Date started_at;
     ArrayList<String> rider;
     ArrayList<String> driver;
@@ -20,7 +20,7 @@ public class Trip implements Serializable {
     ArrayList<Double> driver_location;
     ArrayList<Double> drop_location;
 
-    public Trip(String ride_id, Date started_at, ArrayList<String> rider, ArrayList<String> driver, ArrayList<Double> rider_location, ArrayList<Double> driver_location, ArrayList<Double> drop_location) {
+    public Trip(String ride_id, Date started_at, ArrayList<String> rider, ArrayList<String> driver, ArrayList<Double> rider_location, ArrayList<Double> driver_location, ArrayList<Double> drop_location, String pickup_name, String drop_name) {
         this.ride_id = ride_id;
         this.started_at = started_at;
         this.rider = rider;
@@ -28,6 +28,24 @@ public class Trip implements Serializable {
         this.rider_location = rider_location;
         this.driver_location = driver_location;
         this.drop_location = drop_location;
+        this.pickup_name = pickup_name;
+        this.drop_name = drop_name;
+    }
+
+    public String getPickup_name() {
+        return pickup_name;
+    }
+
+    public void setPickup_name(String pickup_name) {
+        this.pickup_name = pickup_name;
+    }
+
+    public String getDrop_name() {
+        return drop_name;
+    }
+
+    public void setDrop_name(String drop_name) {
+        this.drop_name = drop_name;
     }
 
     public LatLng getDriverLatLng() {

@@ -164,11 +164,11 @@ public class ChatroomFragment extends Fragment {
             sendRideStartedChat();
         } else if (user.ride_finished && user.getTrip() != null && !user.getTrip().isOngoing()) {
             user.setTrip(null);
-            user.ride_finished = true;
+            user.ride_finished = false;
             Toast.makeText(getActivity(), "Trip was finished!", Toast.LENGTH_SHORT).show();
             removeRideStuff();
         } else if (user.ride_finished) {
-            user.ride_finished = true;
+            user.ride_finished = false;
             Toast.makeText(getActivity(), "Trip was finished!", Toast.LENGTH_SHORT).show();
         }
 
@@ -280,6 +280,8 @@ public class ChatroomFragment extends Fragment {
                     data.put("driver_location", rideOffer.getDriver_location());
                     data.put("pickup_location", rideOffer.getPickup_location());
                     data.put("drop_location", rideOffer.getDrop_location());
+                    data.put("pickup_name", rideOffer.getPickup_name());
+                    data.put("drop_name", rideOffer.getDrop_name());
 
                     db.collection(Utils.DB_RIDE_OFFER).document(rideOffer.getMsg_id())
                             .set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -298,7 +300,7 @@ public class ChatroomFragment extends Fragment {
     public void sendRequestChat() {
         HashMap<String, Object> chat = new HashMap<>();
         chat.put("created_at", FieldValue.serverTimestamp());
-        chat.put("content", rideReq.getPickup_location().get(0) + "\n" + rideReq.getPickup_location().get(1) + "\n" + rideReq.getDrop_location().get(0) + "\n" + rideReq.getDrop_location().get(1));
+        chat.put("content", rideReq.getPickup_location().get(0) + "\n" + rideReq.getPickup_location().get(1) + "\n" + rideReq.getDrop_location().get(0) + "\n" + rideReq.getDrop_location().get(1) + "\n" + rideReq.getPickup_name() + "\n" + rideOffer.getDrop_name());
         chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
         chat.put("chatType", Chat.CHAT_RIDE_REQUEST);
         chat.put("likedBy", new ArrayList<>());
@@ -313,6 +315,8 @@ public class ChatroomFragment extends Fragment {
                     data.put("pickup_location", rideReq.getPickup_location());
                     data.put("drop_location", rideReq.getDrop_location());
                     data.put("requester", rideReq.getRequester());
+                    data.put("pickup_name", rideReq.getPickup_name());
+                    data.put("drop_name", rideReq.getDrop_name());
 
                     db.collection(Utils.DB_RIDE_REQ).document(rideReq.getMsg_id())
                             .set(data).addOnCompleteListener(new OnCompleteListener<Void>() {
