@@ -162,9 +162,14 @@ public class ChatroomFragment extends Fragment {
             trip = user.getTrip();
             user.ride_started = false;
             sendRideStartedChat();
-        } else if (user.getTrip() != null && !user.getTrip().isOngoing()) {
+        } else if (user.ride_finished && user.getTrip() != null && !user.getTrip().isOngoing()) {
             user.setTrip(null);
+            user.ride_finished = true;
+            Toast.makeText(getActivity(), "Trip was finished!", Toast.LENGTH_SHORT).show();
             removeRideStuff();
+        } else if (user.ride_finished) {
+            user.ride_finished = true;
+            Toast.makeText(getActivity(), "Trip was finished!", Toast.LENGTH_SHORT).show();
         }
 
         am.toggleDialog(true);
