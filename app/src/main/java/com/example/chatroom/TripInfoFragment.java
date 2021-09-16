@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.chatroom.databinding.FragmentTripInfoBinding;
@@ -46,6 +47,7 @@ public class TripInfoFragment extends Fragment {
     User user;
 
     MapHelper mapHelper;
+    NavController navController;
 
     ITripInfo am;
 
@@ -129,6 +131,7 @@ public class TripInfoFragment extends Fragment {
         getActivity().setTitle("Ongoing Trip Details");
         binding = FragmentTripInfoBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.mapView5);
 
@@ -174,7 +177,7 @@ public class TripInfoFragment extends Fragment {
                 trip.setId(value.getId());
                 if (!trip.isOngoing()) {
                     user.ride_finished = true;
-                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+                    navController.popBackStack();
                     return;
                 }
                 m1.setPosition(trip.getDriverLatLng());
@@ -183,7 +186,7 @@ public class TripInfoFragment extends Fragment {
                     trip.setOngoing(false);
                     user.ride_finished = true;
                     db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false);
-                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+                    navController.popBackStack();
                 }
             }
         });
@@ -191,7 +194,7 @@ public class TripInfoFragment extends Fragment {
         binding.button11.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+                navController.popBackStack();
             }
         });
         return view;
