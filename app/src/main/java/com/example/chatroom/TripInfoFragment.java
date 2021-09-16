@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
@@ -135,16 +136,16 @@ public class TripInfoFragment extends Fragment {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.mapView5);
 
+        mapHelper.clearMarkers();
+
         if (mapFragment != null) {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
                     mMap = googleMap;
-                    m1 = mapHelper.justAddMarker(mMap, trip.getDriverLatLng(), "Driver Location");
-                    m2 = mapHelper.justAddMarker(mMap, trip.getRiderLatLng(), "Rider Location");
+                    m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng(), "Driver Location");
+                    m2 = mapHelper.addMarker(mMap, trip.getRiderLatLng(), "Rider Location");
                     mapHelper.justAddMarker(mMap, trip.getDropLatLng(), "Drop Location");
-                    mapHelper.camUpdate(mMap, trip.getDriverLatLng(), 15);
-                    mapHelper.drawRoute(mMap, trip.getDriverLatLng(), trip.getRiderLatLng());
                 }
             });
         }
@@ -180,12 +181,14 @@ public class TripInfoFragment extends Fragment {
                     navController.popBackStack();
                     return;
                 }
-                m1.setPosition(trip.getDriverLatLng());
-                mapHelper.camUpdate(mMap, trip.getDriverLatLng(), 15);
+                mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 1);
                 if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
                     user.ride_finished = true;
-                    db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false);
+                    HashMap<String, Object> upd = new HashMap<>();
+                    upd.put("ongoing", false);
+                    upd.put("end_at", FieldValue.serverTimestamp());
+                    db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
                     navController.popBackStack();
                 }
             }

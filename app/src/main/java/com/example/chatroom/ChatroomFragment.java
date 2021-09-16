@@ -54,8 +54,6 @@ public class ChatroomFragment extends Fragment {
 
     FirebaseAuth mAuth;
 
-    public static final String TYPE = "type";
-
     User user;
 
     FirebaseFirestore db;
@@ -66,7 +64,11 @@ public class ChatroomFragment extends Fragment {
 
     RideReq rideReq;
 
+    ArrayList<Chat> chats;
+
     Trip trip;
+
+    ChatAdapter chatAdapter;
 
     RideOffer rideOffer;
 
@@ -202,6 +204,8 @@ public class ChatroomFragment extends Fragment {
         binding.chatsView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         binding.chatsView.setLayoutManager(llm);
+        chatAdapter = new ChatAdapter(chatroom, new ArrayList<>());
+        binding.chatsView.setAdapter(chatAdapter);
 
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).orderBy("created_at", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -214,13 +218,15 @@ public class ChatroomFragment extends Fragment {
                 if (value == null) {
                     return;
                 }
-                ArrayList<Chat> chats = new ArrayList<>();
+                chats = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : value) {
                     Chat chat = doc.toObject(Chat.class);
                     chat.setId(doc.getId());
                     chats.add(chat);
                 }
-                binding.chatsView.setAdapter(new ChatAdapter(chatroom, chats));
+                chatAdapter.updateData(chats);
+                if (chats != null && chats.size() > 0)
+                    binding.chatsView.smoothScrollToPosition(chats.size() - 1);
             }
         });
 
@@ -262,7 +268,7 @@ public class ChatroomFragment extends Fragment {
     public void sendOfferChat() {
         HashMap<String, Object> chat = new HashMap<>();
         chat.put("created_at", FieldValue.serverTimestamp());
-        chat.put("content", rideOffer.getRiderId() + "\n" + rideOffer.getOfferorName() + "\n" + rideOffer.getRiderName());
+        chat.put("content", rideOffer.getRiderId() + "\n" + rideOffer.getOfferorName() + "\n" + rideOffer.getRiderName() + "\n" + rideOffer.getDriver_location().get(0) + "\n" + rideOffer.getDriver_location().get(1));
         chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
         chat.put("chatType", Chat.CHAT_RIDE_OFFER);
         chat.put("likedBy", new ArrayList<>());
@@ -300,7 +306,7 @@ public class ChatroomFragment extends Fragment {
     public void sendRequestChat() {
         HashMap<String, Object> chat = new HashMap<>();
         chat.put("created_at", FieldValue.serverTimestamp());
-        chat.put("content", rideReq.getPickup_location().get(0) + "\n" + rideReq.getPickup_location().get(1) + "\n" + rideReq.getDrop_location().get(0) + "\n" + rideReq.getDrop_location().get(1) + "\n" + rideReq.getPickup_name() + "\n" + rideOffer.getDrop_name());
+        chat.put("content", rideReq.getPickup_location().get(0) + "\n" + rideReq.getPickup_location().get(1) + "\n" + rideReq.getDrop_location().get(0) + "\n" + rideReq.getDrop_location().get(1) + "\n" + rideReq.getPickup_name() + "\n" + rideReq.getDrop_name());
         chat.put("owner", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
         chat.put("chatType", Chat.CHAT_RIDE_REQUEST);
         chat.put("likedBy", new ArrayList<>());

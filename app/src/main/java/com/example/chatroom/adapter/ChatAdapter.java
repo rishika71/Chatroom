@@ -1,8 +1,6 @@
 package com.example.chatroom.adapter;
 
-import android.content.Intent;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +16,13 @@ import com.example.chatroom.R;
 import com.example.chatroom.databinding.ChatLayoutBinding;
 import com.example.chatroom.models.Chat;
 import com.example.chatroom.models.Chatroom;
+import com.example.chatroom.models.MapHelper;
 import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -42,6 +45,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
 
     FirebaseFirestore db;
 
+    public static final int MAP_HEIGHT = 500;
+    MapHelper mapHelper;
+
     User user;
 
     public ChatAdapter(Chatroom chatroom, ArrayList<Chat> chats) {
@@ -50,13 +56,50 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
         db = FirebaseFirestore.getInstance();
     }
 
+    private void sendMap(OnMapReadyCallback callback) {
+        MapView mapView = new MapView(binding.getRoot().getContext());
+        mapView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, MAP_HEIGHT));
+        binding.txtwrap.addView(mapView);
+        mapView.onCreate(null);
+        mapView.onResume();
+        mapView.getMapAsync(callback);
+    }
+
+    public void updateData(ArrayList<Chat> chats) {
+        this.chats = chats;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public UViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         binding = ChatLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         am = (IChatAdapter) parent.getContext();
         user = am.getUser();
+        mapHelper = am.getMapHelper();
         return new UViewHolder(binding);
+    }
+
+    private void sendExtraInfo(String msg) {
+        binding.textViewext.setVisibility(View.VISIBLE);
+        binding.textViewext.setText(msg);
+        binding.textViewext.setTypeface(null, Typeface.ITALIC);
+    }
+
+    private void toggleDelete(boolean show) {
+        int view;
+        if (show) view = View.VISIBLE;
+        else view = View.GONE;
+        binding.imageView3.setVisibility(view);
+    }
+
+    private void toggleLike(boolean show, boolean show_likes) {
+        int view;
+        if (show) view = View.VISIBLE;
+        else view = View.GONE;
+        binding.imageView.setVisibility(view);
+        if (!show_likes)
+            binding.textView9.setVisibility(View.GONE);
     }
 
     @Override
@@ -64,6 +107,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
         Chat chat = chats.get(position);
 
         binding = holder.binding;
+
+        binding.textViewext.setVisibility(View.GONE);
 
         if (chat.getOwnerId().equals(user.getId())) {
             binding.chatlayout.setBackgroundResource(R.drawable.outgoing_bubble);
@@ -83,7 +128,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                     .into(binding.imageView2);
         }
 
-        binding.imageView3.setVisibility(View.GONE);
+        toggleDelete(false);
 
         binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,8 +146,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             if (holder.liked) binding.imageView.setImageResource(R.drawable.like_favorite);
 
             if (chat.getOwnerId().equals(user.getId())) {
-                binding.imageView.setVisibility(View.GONE);
-                binding.imageView3.setVisibility(View.VISIBLE);
+                toggleLike(false, true);
+                toggleDelete(true);
             }
 
             binding.imageView.setOnClickListener(new View.OnClickListener() {
@@ -139,28 +184,34 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
             });
 
         } else if (chat.getChatType() == Chat.CHAT_LOCATION) {
-            binding.imageView.setVisibility(View.GONE);
-            if (chat.getOwnerId().equals(user.getId())) {
-                binding.imageView3.setVisibility(View.VISIBLE);
-            }
-            binding.textView8.setText("Sent their Location!\nTap for more info");
-            binding.textView8.setTypeface(null, Typeface.ITALIC);
-            binding.getRoot().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String[] loc = chat.getContent().split("\n");
-                    String url = "http://maps.google.com/maps?z=12&t=m&q=loc:" + loc[0] + "+" + loc[1];
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(url));
-                    binding.getRoot().getContext().startActivity(i);
-                }
+            toggleLike(false, false);
+
+            sendMap(googleMap -> {
+                String[] loc = chat.getContent().split("\n");
+                LatLng ltlg = new LatLng(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
+                mapHelper.clearMarkers();
+                mapHelper.addMarker(googleMap, ltlg, "User Location");
             });
+            sendExtraInfo("Sent Location");
+
+            if (chat.getOwnerId().equals(user.getId())) {
+                toggleDelete(true);
+            }
+
         } else if (chat.getChatType() == Chat.CHAT_RIDE_REQUEST) {
-            binding.imageView.setVisibility(View.GONE);
+            toggleLike(false, false);
             String[] loc = chat.getContent().split("\n");
+
+            sendMap(googleMap -> {
+                LatLng ltlg = new LatLng(Double.parseDouble(loc[0]), Double.parseDouble(loc[1]));
+                LatLng ltlg2 = new LatLng(Double.parseDouble(loc[2]), Double.parseDouble(loc[3]));
+                mapHelper.clearMarkers();
+                mapHelper.addMarker(googleMap, ltlg, "Rider Location");
+                mapHelper.addMarker(googleMap, ltlg2, "Drop Location");
+            });
+
             if (!chat.getOwnerId().equals(user.getId())) {
-                binding.textView8.setText("Requested a Ride!\nTap for more info");
-                binding.textView8.setTypeface(null, Typeface.ITALIC);
+                sendExtraInfo("Requested a Ride!\nTap for more info");
                 binding.getRoot().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -170,25 +221,25 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                     }
                 });
             } else {
-                binding.imageView3.setVisibility(View.VISIBLE);
-                binding.textView8.setText("You requested a ride in this chatroom!");
-                binding.textView8.setTypeface(null, Typeface.ITALIC);
-                binding.getRoot().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String url = "http://maps.google.com?z=12&saddr=" + loc[0] + "," + loc[1] + "&daddr=" + loc[2] + "," + loc[3];
-                        Intent i = new Intent(Intent.ACTION_VIEW);
-                        i.setData(Uri.parse(url));
-                        binding.getRoot().getContext().startActivity(i);
-                    }
-                });
+                toggleDelete(true);
+                sendExtraInfo("You requested a ride in this chatroom!\nWait for offers");
             }
+
         } else if (chat.getChatType() == Chat.CHAT_RIDE_OFFER) {
-            binding.imageView.setVisibility(View.GONE);
+            toggleLike(false, false);
+            toggleDelete(false);
+
             String[] names = chat.getContent().split("\n");
             if (names[0].equals(user.getId())) {
-                binding.textView8.setText("You received a ride offer from " + names[1] + "!\nTap for more info");
-                binding.textView8.setTypeface(null, Typeface.ITALIC);
+                sendMap(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(@NonNull GoogleMap googleMap) {
+                        LatLng ltlg = new LatLng(Double.parseDouble(names[3]), Double.parseDouble(names[4]));
+                        mapHelper.clearMarkers();
+                        mapHelper.addMarker(googleMap, ltlg, "Driver Location");
+                    }
+                });
+                sendExtraInfo("You received a ride offer from " + names[1] + "!\nTap for more info");
                 if (user.getRideReq() != null)
                     user.getRideReq().addOffer(chat.getId());
                 binding.getRoot().setOnClickListener(new View.OnClickListener() {
@@ -200,24 +251,23 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
                     }
                 });
             } else if (chat.getOwnerId().equals(user.getId())) {
-                binding.imageView3.setVisibility(View.VISIBLE);
-                binding.textView8.setText("You sent a ride offer to " + names[2] + "!");
-                binding.textView8.setTypeface(null, Typeface.ITALIC);
+                binding.textView8.setVisibility(View.GONE);
+                toggleDelete(true);
+                sendExtraInfo("You sent a ride offer to " + names[2] + "!");
             } else {
                 binding.getRoot().setVisibility(View.GONE);
             }
         } else if (chat.getChatType() == Chat.CHAT_RIDE_STARTED) {
-            binding.imageView.setVisibility(View.GONE);
+            toggleLike(false, false);
+            toggleDelete(false);
+            binding.textView8.setVisibility(View.GONE);
+
             String[] names = chat.getContent().split("\n");
             if (names[1].equals(user.getId())) {
                 user.addRide(names[0]);
-                binding.textView8.setText("Your ride with " + names[3] + " has started!\nTap for more info");
-                binding.textView8.setTypeface(null, Typeface.ITALIC);
-
+                sendExtraInfo("Your ride with " + names[3] + " has started!\nTap for more info");
             } else if (chat.getOwnerId().equals(user.getId())) {
-                binding.imageView3.setVisibility(View.VISIBLE);
-                binding.textView8.setText("Your drive with " + names[2] + " has started!\nTap for more info");
-                binding.textView8.setTypeface(null, Typeface.ITALIC);
+                sendExtraInfo("Your drive with " + names[2] + " has started!\nTap for more info");
             } else {
                 binding.getRoot().setVisibility(View.GONE);
             }
@@ -260,6 +310,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
     public interface IChatAdapter {
 
         void toggleDialog(boolean show);
+
+        MapHelper getMapHelper();
 
         User getUser();
 
