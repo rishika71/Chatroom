@@ -128,7 +128,7 @@ public class RideOfferDetailFragment extends Fragment {
             public void onClick(View v) {
                 am.toggleDialog(true);
 
-                Trip trip = new Trip(rideOffer.getRide_id(), new Date(), rideOffer.getRider(), rideOffer.getOfferor(), rideOffer.getPickup_location(), rideOffer.getDriver_location(), rideOffer.getDrop_location());
+                Trip trip = new Trip(rideOffer.getRide_id(), new Date(), rideOffer.getRider(), rideOffer.getOfferor(), rideOffer.getPickup_location(), rideOffer.getDriver_location(), rideOffer.getDrop_location(), rideOffer.getPickup_name(), rideOffer.getDrop_name());
 
                 HashMap<String, Object> data = new HashMap<>();
                 data.put("ride_id", trip.getRide_id());
@@ -139,6 +139,8 @@ public class RideOfferDetailFragment extends Fragment {
                 data.put("rider_location", trip.getRider_location());
                 data.put("driver_location", trip.getDriver_location());
                 data.put("drop_location", trip.getDrop_location());
+                data.put("pickup_name", trip.getPickup_name());
+                data.put("drop_name", trip.getDrop_name());
 
                 db.collection(Utils.DB_TRIPS).add(data).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override

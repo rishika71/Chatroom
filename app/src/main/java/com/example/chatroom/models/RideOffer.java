@@ -9,16 +9,34 @@ public class RideOffer implements Serializable {
     public ArrayList<String> offeror;
     public ArrayList<Double> pickup_location;
     public ArrayList<Double> drop_location;
-    String id, msg_id, ride_id, offer_id;
+    String id, msg_id, ride_id, offer_id, pickup_name, drop_name;
     ArrayList<Double> driver_location;
 
-    public RideOffer(String ride_id, ArrayList<String> rider, ArrayList<String> offeror, ArrayList<Double> driver_location, ArrayList<Double> pickup_location, ArrayList<Double> drop_location) {
+    public RideOffer(String ride_id, ArrayList<String> rider, ArrayList<String> offeror, ArrayList<Double> driver_location, ArrayList<Double> pickup_location, ArrayList<Double> drop_location, String pickup_name, String drop_name) {
         this.ride_id = ride_id;
         this.rider = rider;
         this.offeror = offeror;
         this.driver_location = driver_location;
         this.pickup_location = pickup_location;
         this.drop_location = drop_location;
+        this.pickup_name = pickup_name;
+        this.drop_name = drop_name;
+    }
+
+    public String getPickup_name() {
+        return pickup_name;
+    }
+
+    public void setPickup_name(String pickup_name) {
+        this.pickup_name = pickup_name;
+    }
+
+    public String getDrop_name() {
+        return drop_name;
+    }
+
+    public void setDrop_name(String drop_name) {
+        this.drop_name = drop_name;
     }
 
     public String getMsg_id() {

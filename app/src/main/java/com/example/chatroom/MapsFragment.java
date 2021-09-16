@@ -39,7 +39,9 @@ public class MapsFragment extends Fragment {
 
     MapHelper mapHelper;
     private LatLng mOrigin;
+    String oName;
     private LatLng mDestination;
+    String dName;
     User user;
     IRequestRide am;
 
@@ -116,7 +118,7 @@ public class MapsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (mOrigin != null & mDestination != null) {
-                    RideReq rideReq = new RideReq(new ArrayList<>(Arrays.asList(mOrigin.latitude, mOrigin.longitude)), new ArrayList<>(Arrays.asList(mDestination.latitude, mDestination.longitude)), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>());
+                    RideReq rideReq = new RideReq(new ArrayList<>(Arrays.asList(mOrigin.latitude, mOrigin.longitude)), new ArrayList<>(Arrays.asList(mDestination.latitude, mDestination.longitude)), new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())), new ArrayList<>(), oName, dName);
                     user.setRideReq(rideReq);
                     user.ride_req = true;
                     Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
