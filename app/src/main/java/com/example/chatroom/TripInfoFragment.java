@@ -1,6 +1,8 @@
 package com.example.chatroom;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -172,8 +174,7 @@ public class TripInfoFragment extends Fragment {
                 trip = value.toObject(Trip.class);
                 trip.setId(value.getId());
                 if (!trip.isOngoing()) {
-                    Toast.makeText(getActivity(), "Trip has completed!", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+                    trip_finished();
                     return;
                 }
                 m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng(), "Driver Location");
@@ -182,8 +183,7 @@ public class TripInfoFragment extends Fragment {
                     db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            Toast.makeText(getActivity(), "Ride finished!", Toast.LENGTH_LONG).show();
-                            Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+                            trip_finished();
                         }
                     });
                 }
@@ -197,6 +197,20 @@ public class TripInfoFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    public void trip_finished() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.info)
+                .setMessage("Trip has finished!")
+                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
+
+                    }
+                })
+                .show();
     }
 
     interface ITripInfo {
