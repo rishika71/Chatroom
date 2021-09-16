@@ -135,6 +135,11 @@ public class MapHelper {
         return marker;
     }
 
+    public void camUpdate(GoogleMap mMap, LatLng point, int zoom) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(point, zoom);
+        mMap.animateCamera(cameraUpdate);
+    }
+
     @SuppressLint("MissingPermission")
     public boolean getLastLocation(ILastLocation callback) {
         if (hasLocationPerms()) {

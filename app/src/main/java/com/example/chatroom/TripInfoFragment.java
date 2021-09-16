@@ -143,6 +143,8 @@ public class TripInfoFragment extends Fragment {
                     mMap = googleMap;
                     m1 = mapHelper.justAddMarker(mMap, trip.getDriverLatLng(), "Driver Location");
                     m2 = mapHelper.justAddMarker(mMap, trip.getRiderLatLng(), "Rider Location");
+                    mapHelper.camUpdate(mMap, trip.getDriverLatLng(), 15);
+                    mapHelper.drawRoute(mMap, trip.getDriverLatLng(), trip.getRiderLatLng());
                 }
             });
         }
@@ -178,6 +180,7 @@ public class TripInfoFragment extends Fragment {
                     return;
                 }
                 m1.setPosition(trip.getDriverLatLng());
+                mapHelper.camUpdate(mMap, trip.getDriverLatLng(), 15);
                 if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
                     db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false).addOnCompleteListener(new OnCompleteListener<Void>() {
