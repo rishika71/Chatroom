@@ -1,8 +1,6 @@
 package com.example.chatroom;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,8 +24,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -143,6 +139,7 @@ public class TripInfoFragment extends Fragment {
                     mMap = googleMap;
                     m1 = mapHelper.justAddMarker(mMap, trip.getDriverLatLng(), "Driver Location");
                     m2 = mapHelper.justAddMarker(mMap, trip.getRiderLatLng(), "Rider Location");
+                    mapHelper.justAddMarker(mMap, trip.getDropLatLng(), "Drop Location");
                     mapHelper.camUpdate(mMap, trip.getDriverLatLng(), 15);
                     mapHelper.drawRoute(mMap, trip.getDriverLatLng(), trip.getRiderLatLng());
                 }
@@ -176,19 +173,17 @@ public class TripInfoFragment extends Fragment {
                 trip = value.toObject(Trip.class);
                 trip.setId(value.getId());
                 if (!trip.isOngoing()) {
-                    trip_finished();
+                    user.ride_finished = true;
+                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
                     return;
                 }
                 m1.setPosition(trip.getDriverLatLng());
                 mapHelper.camUpdate(mMap, trip.getDriverLatLng(), 15);
                 if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
-                    db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            trip_finished();
-                        }
-                    });
+                    user.ride_finished = true;
+                    db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false);
+                    Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
                 }
             }
         });
@@ -200,20 +195,6 @@ public class TripInfoFragment extends Fragment {
             }
         });
         return view;
-    }
-
-    public void trip_finished() {
-        new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.info)
-                .setMessage("Trip has finished!")
-                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Navigation.findNavController(getActivity(), R.id.fragmentContainerView2).popBackStack();
-
-                    }
-                })
-                .show();
     }
 
     interface ITripInfo {

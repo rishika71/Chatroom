@@ -18,6 +18,7 @@ public class User implements Serializable {
     public boolean ride_offer = false;
     public boolean ride_req = false;
     public boolean ride_started = false;
+    public boolean ride_finished = false;
 
     Trip trip;
 
