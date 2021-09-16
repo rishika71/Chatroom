@@ -87,12 +87,12 @@ public class MapHelper {
         }
     }
 
-    public void justAddMarker(GoogleMap mMap, LatLng point, String placeName) {
+    public Marker justAddMarker(GoogleMap mMap, LatLng point, String placeName) {
         MarkerOptions options = new MarkerOptions();
         options.position(point);
         options.title(placeName);
         options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        mMap.addMarker(options);
+        return mMap.addMarker(options);
     }
 
     public Marker addMarker(GoogleMap mMap, LatLng point, String placeName) {

@@ -141,8 +141,8 @@ public class TripInfoFragment extends Fragment {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
                     mMap = googleMap;
-                    m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng(), "Driver Location");
-                    m2 = mapHelper.addMarker(mMap, trip.getRiderLatLng(), "Rider Location");
+                    m1 = mapHelper.justAddMarker(mMap, trip.getDriverLatLng(), "Driver Location");
+                    m2 = mapHelper.justAddMarker(mMap, trip.getRiderLatLng(), "Rider Location");
                 }
             });
         }
@@ -177,7 +177,7 @@ public class TripInfoFragment extends Fragment {
                     trip_finished();
                     return;
                 }
-                m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng(), "Driver Location");
+                m1.setPosition(trip.getDriverLatLng());
                 if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
                     db.collection(Utils.DB_TRIPS).document(trip.getId()).update("ongoing", false).addOnCompleteListener(new OnCompleteListener<Void>() {
