@@ -57,7 +57,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.UViewHolder> {
             holder.binding.textView33.setText("Rider");
         }
 
-        holder.binding.textView32.setText(Utils.getDateString(trip.getStarted_at()));
+        holder.binding.textView32.setText(Utils.getPrettyTime(trip.getStarted_at()));
         holder.binding.textView31.setText(trip.getStatus());
 
         if (trip.isOngoing()) {

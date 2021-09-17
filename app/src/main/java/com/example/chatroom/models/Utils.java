@@ -1,6 +1,7 @@
 package com.example.chatroom.models;
 
-import java.text.SimpleDateFormat;
+import org.ocpsoft.prettytime.PrettyTime;
+
 import java.util.Date;
 
 public class Utils {
@@ -23,9 +24,9 @@ public class Utils {
      * @param date
      * @return
      */
-    public static String getDateString(Date date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy h:m a");
-        return dateFormat.format(date);
+    public static String getPrettyTime(Date date) {
+        PrettyTime time = new PrettyTime();
+        return time.format(date);
     }
 
 }

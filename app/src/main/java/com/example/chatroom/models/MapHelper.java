@@ -59,11 +59,16 @@ public class MapHelper {
 
     ArrayList<LatLng> mMarkerPoints = new ArrayList<>();
 
-    List<Marker> markersList = new ArrayList<Marker>();
+    ArrayList<Marker> markersList = new ArrayList<>();
 
     LocationManager lm;
     LocationCallback mLocationCallback;
     private Polyline mPolyline;
+
+    public void clearMarkers() {
+        markersList.clear();
+        mMarkerPoints.clear();
+    }
 
     public MapHelper(MainActivity activity) {
         this.activity = activity;
@@ -108,31 +113,44 @@ public class MapHelper {
         options.position(point);
         options.title(placeName);
 
-        options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        if (mMarkerPoints.size() == 1) {
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        } else if (mMarkerPoints.size() == 2) {
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        }
 
         Marker marker = mMap.addMarker(options);
-
         markersList.add(marker);
-        if(markersList.size() > 1){
+
+        decorate(mMap);
+
+        return marker;
+    }
+
+    public void updateMarker(GoogleMap map, LatLng point, int pos) {
+        markersList.get(pos).setPosition(point);
+        mMarkerPoints.set(pos, point);
+        decorate(map);
+    }
+
+    public void decorate(GoogleMap mMap) {
+        if (markersList.size() > 1) {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             for (Marker m : markersList) {
                 builder.include(m.getPosition());
             }
             LatLngBounds bounds = builder.build();
-            int padding = 50; // offset from edges of the map in pixels
+            int padding = 50;
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
             mMap.animateCamera(cameraUpdate);
-        }else{
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(point, 15);
+        } else {
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(markersList.get(0).getPosition(), 15);
             mMap.animateCamera(cameraUpdate);
         }
-
 
         if (mMarkerPoints.size() >= 2) {
             drawRoute(mMap, mMarkerPoints.get(0), mMarkerPoints.get(1));
         }
-
-        return marker;
     }
 
     public void camUpdate(GoogleMap mMap, LatLng point, int zoom) {

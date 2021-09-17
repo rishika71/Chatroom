@@ -11,21 +11,21 @@ public class Chatroom implements Serializable {
     public int number;
     public String created_by;
     public Date created_at;
-    public HashMap<String, String> viewers;
+    public HashMap<String, Viewer> viewers;
 
-    public HashMap<String, String> getViewers() {
+    public HashMap<String, Viewer> getViewers() {
         return viewers;
     }
 
-    public void setViewers(HashMap<String, String> viewers) {
+    public void setViewers(HashMap<String, Viewer> viewers) {
         this.viewers = viewers;
     }
 
     public Chatroom() {
     }
 
-    public void addViewer(String uid, String name) {
-        this.viewers.put(uid, name);
+    public void addViewer(String uid, Viewer viewer) {
+        this.viewers.put(uid, viewer);
     }
 
     public void removeViewer(String uid) {
