@@ -49,12 +49,15 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.UViewHolder> {
 
         holder.binding.textView25.setText("Trip #" + trip.getNumber());
 
+        holder.binding.sourceId.setText("Source: " + trip.getPickup_name());
+        holder.binding.destinationId.setText("Dest: " + trip.getDrop_name());
+
         if (trip.getDriverId().equals(user.getId())) {
             holder.binding.textView30.setText("Rider: " + trip.getRiderName());
-            holder.binding.textView33.setText("Driver");
+            holder.binding.textView33.setText("Driver: You");
         } else {
             holder.binding.textView30.setText("Driver: " + trip.getDriverName());
-            holder.binding.textView33.setText("Rider");
+            holder.binding.textView33.setText("Rider: You");
         }
 
         holder.binding.textView32.setText(Utils.getPrettyTime(trip.getStarted_at()));

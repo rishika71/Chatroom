@@ -37,8 +37,8 @@ import java.util.HashMap;
 
 public class RideOfferDetailFragment extends Fragment {
 
-    public static final String RIDE_STARTED = "ride";
     FragmentRideOfferDetailBinding binding;
+
     Chat chat;
 
     User user;

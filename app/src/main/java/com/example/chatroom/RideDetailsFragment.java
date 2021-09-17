@@ -84,6 +84,9 @@ public class RideDetailsFragment extends Fragment {
         pickup_name = loc[4];
         drop_name = loc[5];
 
+        binding.sourceTextView.setText(pickup_name);
+        binding.destinationTextView.setText(drop_name);
+
         ArrayList<Double> pickup = new ArrayList<>(Arrays.asList(Double.parseDouble(loc[0]), Double.parseDouble(loc[1])));
         ArrayList<Double> drop = new ArrayList<>(Arrays.asList(Double.parseDouble(loc[2]), Double.parseDouble(loc[3])));
 
