@@ -1,6 +1,7 @@
 package com.example.chatroom;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -124,8 +125,8 @@ public class RideDetailsFragment extends Fragment {
                     mapHelper.getLastLocation(new MapHelper.ILastLocation() {
 
                         @Override
-                        public void onUpdate(double lat, double longi) {
-                            sendRideOffer(lat, longi, pickup, drop);
+                        public void onUpdate(Location location) {
+                            sendRideOffer(location.getLatitude(), location.getLongitude(), pickup, drop);
                         }
 
                         @Override

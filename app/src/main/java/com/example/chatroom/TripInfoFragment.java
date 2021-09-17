@@ -23,6 +23,7 @@ import com.example.chatroom.models.Utils;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -81,10 +82,12 @@ public class TripInfoFragment extends Fragment {
     public void updLocation(String type, ArrayList<Double> current_pos) {
         mapHelper.getLastLocation(new MapHelper.ILastLocation() {
             @Override
-            public void onUpdate(double lat, double longi) {
-                if (current_pos.get(0) != lat && current_pos.get(1) != longi) {
+            public void onUpdate(Location location) {
+                if (current_pos.get(0) != location.getLatitude() && current_pos.get(1) != location.getLongitude()) {
                     HashMap<String, Object> upd = new HashMap<>();
-                    upd.put(type, new ArrayList<>(Arrays.asList(lat, longi)));
+                    upd.put(type, new ArrayList<>(Arrays.asList(location.getLatitude(), location.getLongitude())));
+                    if (type.equals("driver_location"))
+                        upd.put("driver_bearing", location.getBearing());
                     db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
                 }
             }
@@ -143,7 +146,7 @@ public class TripInfoFragment extends Fragment {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
                     mMap = googleMap;
-                    m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng(), "Driver Location");
+                    m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng(), "Driver Location", BitmapDescriptorFactory.fromResource(R.drawable.redcar));
                     m2 = mapHelper.addMarker(mMap, trip.getRiderLatLng(), "Rider Location");
                     mapHelper.justAddMarker(mMap, trip.getDropLatLng(), "Drop Location");
                 }
@@ -183,7 +186,7 @@ public class TripInfoFragment extends Fragment {
                     navController.popBackStack();
                     return;
                 }
-                mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 1);
+                mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 1, trip.getDriver_bearing());
                 if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
                     user.ride_finished = true;

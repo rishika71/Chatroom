@@ -19,6 +19,7 @@ public class Trip implements Serializable {
     ArrayList<Double> rider_location;
     ArrayList<Double> driver_location;
     ArrayList<Double> drop_location;
+    Float driver_bearing = null;
     Date end_at;
 
     public Trip(String ride_id, Date started_at, ArrayList<String> rider, ArrayList<String> driver, ArrayList<Double> rider_location, ArrayList<Double> driver_location, ArrayList<Double> drop_location, String pickup_name, String drop_name) {
@@ -31,6 +32,14 @@ public class Trip implements Serializable {
         this.drop_location = drop_location;
         this.pickup_name = pickup_name;
         this.drop_name = drop_name;
+    }
+
+    public Float getDriver_bearing() {
+        return driver_bearing;
+    }
+
+    public void setDriver_bearing(Float driver_bearing) {
+        this.driver_bearing = driver_bearing;
     }
 
     public Date getEnd_at() {
