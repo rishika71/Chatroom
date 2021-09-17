@@ -41,7 +41,7 @@ public class ChatroomAdapter extends RecyclerView.Adapter<ChatroomAdapter.UViewH
         Chatroom chatroom = chatrooms.get(position);
 
         holder.binding.textView3.setText(chatroom.getName());
-        holder.binding.textView4.setText("Created: " + Utils.getDateString(chatroom.getCreated_at()));
+        holder.binding.textView4.setText("Created: " + Utils.getPrettyTime(chatroom.getCreated_at()));
         holder.binding.textView5.setText("Creator: " + chatroom.getCreated_by());
 
         holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {

@@ -152,7 +152,7 @@ public class TripInfoFragment extends Fragment {
 
         binding.textView35.setText("Rider - " + trip.getRiderName());
         binding.textView36.setText("Driver - " + trip.getDriverName());
-        binding.textView37.setText("Started at - " + Utils.getDateString(trip.getStarted_at()));
+        binding.textView37.setText("Started - " + Utils.getPrettyTime(trip.getStarted_at()));
         binding.textView34.setText("Status - " + trip.getStatus());
 
         setImage(binding.imageView9, trip.getRiderId(), trip.getRiderRef());

@@ -115,7 +115,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
         }
 
         binding.textView7.setText(chat.getOwnerName());
-        binding.textView17.setText(Utils.getDateString(chat.getCreated_at()));
+
+        binding.textView17.setText(Utils.getPrettyTime(chat.getCreated_at()));
 
         if (chat.getOwnerRef() != null) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(chat.getOwnerId()).child(chat.getOwnerRef());

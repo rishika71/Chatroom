@@ -104,7 +104,7 @@ public class RideOfferDetailFragment extends Fragment {
                 if (task.isSuccessful()) {
                     rideOffer = task.getResult().toObject(RideOffer.class);
                     binding.textView27.setText(rideOffer.getOfferorName());
-                    binding.textView28.setText(Utils.getDateString(chat.getCreated_at()));
+                    binding.textView28.setText(Utils.getPrettyTime(chat.getCreated_at()));
                     if (rideOffer.getOfferorRef() != null) {
                         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(rideOffer.getOfferorId()).child(rideOffer.getOfferorRef());
                         GlideApp.with(view)

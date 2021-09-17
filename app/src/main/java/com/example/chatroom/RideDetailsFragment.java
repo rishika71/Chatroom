@@ -144,7 +144,7 @@ public class RideDetailsFragment extends Fragment {
             }
         });
 
-        binding.textView24.setText(Utils.getDateString(chat.getCreated_at()));
+        binding.textView24.setText(Utils.getPrettyTime(chat.getCreated_at()));
         return binding.getRoot();
     }
 
