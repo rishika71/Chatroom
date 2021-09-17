@@ -24,6 +24,10 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.ILo
         this.mhelper = new MapHelper(this);
     }
 
+    public void actionBar(boolean show) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(show);
+    }
+
     public MapHelper getMapHelper() {
         return mhelper;
     }

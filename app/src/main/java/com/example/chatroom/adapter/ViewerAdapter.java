@@ -41,6 +41,8 @@ public class ViewerAdapter extends RecyclerView.Adapter<ViewerAdapter.UViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull UViewHolder holder, int position) {
+        if (mKeys.length < position + 1) return;
+
         Viewer viewer = viewers.get(mKeys[position]);
 
         holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
