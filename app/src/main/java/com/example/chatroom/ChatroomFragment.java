@@ -83,6 +83,7 @@ public class ChatroomFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        am.actionBar(false);
         removeViewer();
         mapHelper.stopUpdates();
     }
@@ -142,6 +143,7 @@ public class ChatroomFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        am.actionBar(true);
         if (!chatroom.getViewers().containsKey(user.getId())) {
             chatroom.addViewer(user.getId(), new Viewer(user.getId(), user.getPhotoref(), user.getDisplayName()));
             db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update("viewers", chatroom.getViewers());
@@ -201,6 +203,7 @@ public class ChatroomFragment extends Fragment {
                 }
                 chatroom.setViewers(new HashMap<>());
                 HashMap<String, HashMap> temp = (HashMap<String, HashMap>) value.get("viewers");
+                if (temp == null) temp = new HashMap<>();
                 for (Map.Entry<String, HashMap> entry :
                         temp.entrySet()) {
                     Viewer viewer = new Viewer();
@@ -378,6 +381,9 @@ public class ChatroomFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case 16908332:
+                navController.popBackStack();
+                return true;
             case R.id.action_request_ride:
                 navController.navigate(R.id.action_chatroomFragment_to_mapsFragment);
                 return true;
@@ -417,6 +423,8 @@ public class ChatroomFragment extends Fragment {
         void toggleDialog(boolean show);
 
         User getUser();
+
+        void actionBar(boolean show);
 
         MapHelper getMapHelper();
 

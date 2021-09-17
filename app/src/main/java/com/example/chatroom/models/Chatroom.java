@@ -11,7 +11,7 @@ public class Chatroom implements Serializable {
     public int number;
     public String created_by;
     public Date created_at;
-    public HashMap<String, Viewer> viewers;
+    public HashMap<String, Viewer> viewers = new HashMap<>();
 
     public HashMap<String, Viewer> getViewers() {
         return viewers;
