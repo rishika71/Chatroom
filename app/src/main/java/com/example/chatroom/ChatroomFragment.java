@@ -18,6 +18,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.chatroom.adapter.ChatAdapter;
+import com.example.chatroom.adapter.ViewerAdapter;
 import com.example.chatroom.databinding.FragmentChatroomBinding;
 import com.example.chatroom.models.Chat;
 import com.example.chatroom.models.Chatroom;
@@ -27,6 +28,7 @@ import com.example.chatroom.models.RideReq;
 import com.example.chatroom.models.Trip;
 import com.example.chatroom.models.User;
 import com.example.chatroom.models.Utils;
+import com.example.chatroom.models.Viewer;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,9 +68,13 @@ public class ChatroomFragment extends Fragment {
 
     ArrayList<Chat> chats;
 
+    HashMap<String, Viewer> viewers;
+
     Trip trip;
 
     ChatAdapter chatAdapter;
+
+    ViewerAdapter viewerAdapter;
 
     RideOffer rideOffer;
 
@@ -89,9 +95,7 @@ public class ChatroomFragment extends Fragment {
 
     public void removeViewer() {
         chatroom.removeViewer(user.getId());
-        HashMap<String, Object> upd = new HashMap<>();
-        upd.put("viewers", chatroom.getViewers());
-        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd);
+        db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update("viewers", chatroom.getViewers());
     }
 
     public void removeRideStuff() {
@@ -139,10 +143,8 @@ public class ChatroomFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (!chatroom.getViewers().containsKey(user.getId())) {
-            chatroom.addViewer(user.getId(), user.getDisplayName());
-            HashMap<String, Object> upd = new HashMap<>();
-            upd.put("viewers", chatroom.getViewers());
-            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update(upd);
+            chatroom.addViewer(user.getId(), new Viewer(user.getId(), user.getPhotoref(), user.getDisplayName()));
+            db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).update("viewers", chatroom.getViewers());
         }
     }
 
@@ -181,6 +183,12 @@ public class ChatroomFragment extends Fragment {
 
         navController = Navigation.findNavController(getActivity(), R.id.fragmentContainerView2);
 
+        binding.viewerslist.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        binding.viewerslist.setLayoutManager(llm);
+        viewerAdapter = new ViewerAdapter(new HashMap<>());
+        binding.viewerslist.setAdapter(viewerAdapter);
+
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -191,18 +199,27 @@ public class ChatroomFragment extends Fragment {
                 if (value == null) {
                     return;
                 }
-                chatroom.setViewers((HashMap<String, String>) value.get("viewers"));
-                StringBuilder user_str = new StringBuilder("Viewers - ");
-                for (Map.Entry<String, String> s :
-                        chatroom.getViewers().entrySet())
-                    user_str.append(s.getValue()).append(", ");
-                binding.textView6.setText(user_str.substring(0, user_str.length() - 2));
+                chatroom.setViewers(new HashMap<>());
+                HashMap<String, HashMap> temp = (HashMap<String, HashMap>) value.get("viewers");
+                for (Map.Entry<String, HashMap> entry :
+                        temp.entrySet()) {
+                    Viewer viewer = new Viewer();
+                    String key = entry.getKey();
+                    HashMap val = entry.getValue();
+                    viewer.setName((String) val.get("name"));
+                    viewer.setPhotoRef((String) val.get("photoRef"));
+                    viewer.setUid((String) val.get("uid"));
+                    chatroom.addViewer(key, viewer);
+                }
+                viewerAdapter.updateData(chatroom.getViewers());
+                if (viewers != null && viewers.size() > 0)
+                    binding.viewerslist.smoothScrollToPosition(viewers.size() - 1);
             }
         });
 
 
         binding.chatsView.setHasFixedSize(true);
-        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        llm = new LinearLayoutManager(getContext());
         binding.chatsView.setLayoutManager(llm);
         chatAdapter = new ChatAdapter(chatroom, new ArrayList<>());
         binding.chatsView.setAdapter(chatAdapter);
