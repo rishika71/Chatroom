@@ -25,6 +25,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -101,6 +102,10 @@ public class MapHelper {
     }
 
     public Marker addMarker(GoogleMap mMap, LatLng point, String placeName) {
+        return addMarker(mMap, point, placeName);
+    }
+
+    public Marker addMarker(GoogleMap mMap, LatLng point, String placeName, BitmapDescriptor bit) {
         if (mMarkerPoints.size() > 1) {
             mMarkerPoints.clear();
             mMap.clear();
@@ -113,10 +118,14 @@ public class MapHelper {
         options.position(point);
         options.title(placeName);
 
-        if (mMarkerPoints.size() == 1) {
-            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        } else if (mMarkerPoints.size() == 2) {
-            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        if (bit != null) {
+            options.icon(bit);
+        } else {
+            if (mMarkerPoints.size() == 1) {
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            } else if (mMarkerPoints.size() == 2) {
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            }
         }
 
         Marker marker = mMap.addMarker(options);
@@ -127,8 +136,13 @@ public class MapHelper {
         return marker;
     }
 
-    public void updateMarker(GoogleMap map, LatLng point, int pos) {
-        markersList.get(pos).setPosition(point);
+    public void updateMarker(GoogleMap map, LatLng point, int pos, Float bearing) {
+        Marker marker = markersList.get(pos);
+        marker.setPosition(point);
+        if (bearing != null) {
+            marker.setRotation(bearing);
+            marker.setAnchor((float) 0.5, (float) 0.5);
+        }
         mMarkerPoints.set(pos, point);
         decorate(map);
     }
@@ -192,8 +206,7 @@ public class MapHelper {
             mLocationRequest.setNumUpdates(1);
         mLocationCallback = new LocationCallback() {
             public void onLocationResult(LocationResult locationResult) {
-                Location location = locationResult.getLastLocation();
-                callback.onUpdate(location.getLatitude(), location.getLongitude());
+                callback.onUpdate(locationResult.getLastLocation());
             }
         };
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
@@ -256,7 +269,7 @@ public class MapHelper {
 
     public interface ILastLocation {
 
-        void onUpdate(double lat, double longi);
+        void onUpdate(Location location);
 
         boolean stopAfterOneUpdate();
 

@@ -1,6 +1,7 @@
 package com.example.chatroom;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,6 +85,9 @@ public class RideDetailsFragment extends Fragment {
         pickup_name = loc[4];
         drop_name = loc[5];
 
+        binding.sourceTextView.setText(pickup_name);
+        binding.destinationTextView.setText(drop_name);
+
         ArrayList<Double> pickup = new ArrayList<>(Arrays.asList(Double.parseDouble(loc[0]), Double.parseDouble(loc[1])));
         ArrayList<Double> drop = new ArrayList<>(Arrays.asList(Double.parseDouble(loc[2]), Double.parseDouble(loc[3])));
 
@@ -121,8 +125,8 @@ public class RideDetailsFragment extends Fragment {
                     mapHelper.getLastLocation(new MapHelper.ILastLocation() {
 
                         @Override
-                        public void onUpdate(double lat, double longi) {
-                            sendRideOffer(lat, longi, pickup, drop);
+                        public void onUpdate(Location location) {
+                            sendRideOffer(location.getLatitude(), location.getLongitude(), pickup, drop);
                         }
 
                         @Override
