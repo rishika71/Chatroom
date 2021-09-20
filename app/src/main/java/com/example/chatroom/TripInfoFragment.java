@@ -30,6 +30,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -53,6 +54,8 @@ public class TripInfoFragment extends Fragment {
     ITripInfo am;
 
     Marker m1, m2;
+
+    ListenerRegistration lr;
 
     FirebaseFirestore db;
 
@@ -167,7 +170,7 @@ public class TripInfoFragment extends Fragment {
             updLocation("rider_location", trip.getRider_location());
         }
 
-        db.collection(Utils.DB_TRIPS).document(trip.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        lr = db.collection(Utils.DB_TRIPS).document(trip.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -180,10 +183,17 @@ public class TripInfoFragment extends Fragment {
                 trip = value.toObject(Trip.class);
                 trip.setId(value.getId());
 
+                if (!trip.isOngoing()) {
+                    user.ride_finished = true;
+                    lr.remove();
+                    navController.popBackStack();
+                }
+
                 mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 0, trip.getDriver_bearing());
                 if (trip.isOngoing() && getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
                     user.ride_finished = true;
+                    lr.remove();
                     navController.popBackStack();
                 }
             }
