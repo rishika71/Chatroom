@@ -187,6 +187,8 @@ public class TripInfoFragment extends Fragment {
                     user.ride_finished = true;
                     lr.remove();
                     navController.popBackStack();
+                    navController.popBackStack();
+                    return;
                 }
 
                 mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 0, trip.getDriver_bearing());
@@ -195,6 +197,8 @@ public class TripInfoFragment extends Fragment {
                     user.ride_finished = true;
                     lr.remove();
                     navController.popBackStack();
+                    navController.popBackStack();
+                    return;
                 }
             }
         });
