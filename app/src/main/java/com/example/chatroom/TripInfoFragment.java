@@ -187,13 +187,10 @@ public class TripInfoFragment extends Fragment {
                 }
                 mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 0, trip.getDriver_bearing());
                 if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
-                    trip.setOngoing(false);
-                    user.ride_finished = true;
                     HashMap<String, Object> upd = new HashMap<>();
                     upd.put("ongoing", false);
                     upd.put("end_at", FieldValue.serverTimestamp());
                     db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
-                    navController.popBackStack();
                 }
             }
         });

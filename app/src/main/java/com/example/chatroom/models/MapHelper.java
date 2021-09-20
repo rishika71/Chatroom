@@ -371,9 +371,7 @@ public class MapHelper {
 
             try {
                 data = downloadUrl(url[0]);
-                Log.d("DownloadTask", "DownloadTask : " + data);
             } catch (Exception e) {
-                Log.d("Background Task", e.toString());
             }
             return data;
         }
