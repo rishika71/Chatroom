@@ -28,7 +28,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
@@ -180,17 +179,12 @@ public class TripInfoFragment extends Fragment {
                 }
                 trip = value.toObject(Trip.class);
                 trip.setId(value.getId());
-                if (!trip.isOngoing()) {
+
+                mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 0, trip.getDriver_bearing());
+                if (trip.isOngoing() && getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
+                    trip.setOngoing(false);
                     user.ride_finished = true;
                     navController.popBackStack();
-                    return;
-                }
-                mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 0, trip.getDriver_bearing());
-                if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
-                    HashMap<String, Object> upd = new HashMap<>();
-                    upd.put("ongoing", false);
-                    upd.put("end_at", FieldValue.serverTimestamp());
-                    db.collection(Utils.DB_TRIPS).document(trip.getId()).update(upd);
                 }
             }
         });
