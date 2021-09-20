@@ -188,6 +188,7 @@ public class TripInfoFragment extends Fragment {
                     lr.remove();
                     navController.popBackStack();
                     navController.popBackStack();
+                    navController.popBackStack();
                     return;
                 }
 
@@ -196,6 +197,7 @@ public class TripInfoFragment extends Fragment {
                     trip.setOngoing(false);
                     user.ride_finished = true;
                     lr.remove();
+                    navController.popBackStack();
                     navController.popBackStack();
                     navController.popBackStack();
                     return;
