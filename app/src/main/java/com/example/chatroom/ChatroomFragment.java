@@ -67,13 +67,9 @@ public class ChatroomFragment extends Fragment {
 
     RideReq rideReq;
 
-    ArrayList<Chat> chats;
-
     HashMap<String, Viewer> viewers;
 
     Trip trip;
-
-    ChatAdapter chatAdapter;
 
     ViewerAdapter viewerAdapter;
 
@@ -225,8 +221,6 @@ public class ChatroomFragment extends Fragment {
         binding.chatsView.setHasFixedSize(true);
         llm = new LinearLayoutManager(getContext());
         binding.chatsView.setLayoutManager(llm);
-        chatAdapter = new ChatAdapter(chatroom, new ArrayList<>());
-        binding.chatsView.setAdapter(chatAdapter);
 
         db.collection(Utils.DB_CHATROOM).document(chatroom.getId()).collection(Utils.DB_CHAT).orderBy("created_at", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -239,15 +233,14 @@ public class ChatroomFragment extends Fragment {
                 if (value == null) {
                     return;
                 }
-                chats = new ArrayList<>();
+                ArrayList<Chat> chats = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : value) {
                     Chat chat = doc.toObject(Chat.class);
                     chat.setId(doc.getId());
                     chats.add(chat);
                 }
-                chatAdapter.updateData(chats);
-                if (chats != null && chats.size() > 0)
-                    binding.chatsView.smoothScrollToPosition(chats.size() - 1);
+                ChatAdapter chatAdapter = new ChatAdapter(chatroom, chats);
+                binding.chatsView.setAdapter(chatAdapter);
             }
         });
 

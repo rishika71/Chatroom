@@ -102,7 +102,7 @@ public class MapHelper {
     }
 
     public Marker addMarker(GoogleMap mMap, LatLng point, String placeName) {
-        return addMarker(mMap, point, placeName);
+        return addMarker(mMap, point, placeName, null);
     }
 
     public Marker addMarker(GoogleMap mMap, LatLng point, String placeName, BitmapDescriptor bit) {
