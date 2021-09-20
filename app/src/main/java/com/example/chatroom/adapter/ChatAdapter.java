@@ -43,6 +43,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
 
     IChatAdapter am;
 
+    MapView mapView;
+
     FirebaseFirestore db;
 
     public static final int MAP_HEIGHT = 500;
@@ -57,17 +59,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.UViewHolder> {
     }
 
     private void sendMap(OnMapReadyCallback callback) {
-        MapView mapView = new MapView(binding.getRoot().getContext());
+        mapView = new MapView(binding.getRoot().getContext());
         mapView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, MAP_HEIGHT));
         binding.txtwrap.addView(mapView);
         mapView.onCreate(null);
         mapView.onResume();
         mapView.getMapAsync(callback);
-    }
-
-    public void updateData(ArrayList<Chat> chats) {
-        this.chats = chats;
-        notifyDataSetChanged();
     }
 
     @NonNull
