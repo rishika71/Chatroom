@@ -91,7 +91,8 @@ public class MapsFragment extends Fragment {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
                 mOrigin = place.getLatLng();
-                mapHelper.addMarker(mMap, mOrigin, place.getName(), null);
+                oName = place.getName();
+                mapHelper.addMarker(mMap, mOrigin, oName, null);
             }
 
             @Override
@@ -108,7 +109,8 @@ public class MapsFragment extends Fragment {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
                 mDestination = place.getLatLng();
-                mapHelper.addMarker(mMap, mDestination, place.getName());
+                dName = place.getName();
+                mapHelper.addMarker(mMap, mDestination, dName);
             }
 
             @Override
