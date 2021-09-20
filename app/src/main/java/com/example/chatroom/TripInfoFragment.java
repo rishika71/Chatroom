@@ -148,7 +148,6 @@ public class TripInfoFragment extends Fragment {
                     mMap = googleMap;
                     m1 = mapHelper.addMarker(mMap, trip.getDriverLatLng(), "Driver Location", BitmapDescriptorFactory.fromResource(R.drawable.redcar));
                     m2 = mapHelper.addMarker(mMap, trip.getRiderLatLng(), "Rider Location");
-                    mapHelper.justAddMarker(mMap, trip.getDropLatLng(), "Drop Location");
                 }
             });
         }
@@ -186,7 +185,7 @@ public class TripInfoFragment extends Fragment {
                     navController.popBackStack();
                     return;
                 }
-                mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 1, trip.getDriver_bearing());
+                mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 0, trip.getDriver_bearing());
                 if (getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
                     user.ride_finished = true;
