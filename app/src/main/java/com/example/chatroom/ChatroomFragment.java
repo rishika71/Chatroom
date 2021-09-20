@@ -147,6 +147,13 @@ public class ChatroomFragment extends Fragment {
         }
     }
 
+    public void updateTripDetails() {
+        HashMap<String, Object> upd = new HashMap<>();
+        upd.put("ongoing", false);
+        upd.put("end_at", FieldValue.serverTimestamp());
+        db.collection(Utils.DB_TRIPS).document(user.getTrip().getId()).update(upd);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -169,6 +176,7 @@ public class ChatroomFragment extends Fragment {
             user.setTrip(null);
             user.ride_finished = false;
             Toast.makeText(getActivity(), "Trip was finished!", Toast.LENGTH_SHORT).show();
+            updateTripDetails();
             removeRideStuff();
         } else if (user.ride_finished) {
             user.ride_finished = false;
