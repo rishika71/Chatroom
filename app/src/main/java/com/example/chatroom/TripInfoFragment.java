@@ -158,7 +158,7 @@ public class TripInfoFragment extends Fragment {
         binding.textView36.setText("Driver - " + trip.getDriverName());
         binding.textView37.setText("Started: " + Utils.getPrettyTime(trip.getStarted_at()));
         binding.textView34.setText("Status: " + trip.getStatus());
-        binding.textView39.setText("Start Location: " + trip.getPickup_name());
+        binding.textView39.setText("Pickup: " + trip.getPickup_name());
         binding.textView40.setText("Destination: " + trip.getDrop_name());
 
         setImage(binding.imageView9, trip.getRiderId(), trip.getRiderRef());
