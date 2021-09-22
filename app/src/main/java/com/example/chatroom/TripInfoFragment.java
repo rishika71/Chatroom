@@ -184,16 +184,8 @@ public class TripInfoFragment extends Fragment {
                 trip.setId(value.getId());
                 user.setTrip(trip);
 
-                if (!trip.isOngoing()) {
-                    user.ride_finished = true;
-                    lr.remove();
-                    navController.popBackStack();
-                    navController.popBackStack();
-                    return;
-                }
-
                 mapHelper.updateMarker(mMap, trip.getDriverLatLng(), 0, trip.getDriver_bearing());
-                if (trip.isOngoing() && getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
+                if (!trip.isOngoing() || getDistance(trip.getDriverLatLng(), trip.getRiderLatLng()) <= 15) {
                     trip.setOngoing(false);
                     user.ride_finished = true;
                     lr.remove();
