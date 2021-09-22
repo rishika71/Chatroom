@@ -200,8 +200,8 @@ public class MapHelper {
     private void requestNewLocationData(ILastLocation callback) {
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(20);
-        mLocationRequest.setFastestInterval(20);
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setFastestInterval(1000);
         if (callback.stopAfterOneUpdate())
             mLocationRequest.setNumUpdates(1);
         mLocationCallback = new LocationCallback() {

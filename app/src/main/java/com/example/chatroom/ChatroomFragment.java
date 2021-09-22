@@ -3,6 +3,7 @@ package com.example.chatroom;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -164,23 +165,20 @@ public class ChatroomFragment extends Fragment {
             rideReq = user.getRideReq();
             user.ride_req = false;
             sendRequestChat();
-        } else if (user.ride_offer && user.getRideOffer() != null) {
+        } if (user.ride_offer && user.getRideOffer() != null) {
             rideOffer = user.getRideOffer();
             user.ride_offer = false;
             sendOfferChat();
-        } else if (user.ride_started && user.getTrip() != null) {
+        } if (user.ride_started && user.getTrip() != null) {
             trip = user.getTrip();
             user.ride_started = false;
             sendRideStartedChat();
-        } else if (user.ride_finished && user.getTrip() != null && !user.getTrip().isOngoing()) {
+        } if (user.ride_finished) {
             user.ride_finished = false;
             Toast.makeText(getActivity(), "Trip was finished!", Toast.LENGTH_SHORT).show();
             updateTripDetails();
             removeRideStuff();
             user.setTrip(null);
-        } else if (user.ride_finished) {
-            user.ride_finished = false;
-            Toast.makeText(getActivity(), "Trip was finished!", Toast.LENGTH_SHORT).show();
         }
 
         am.toggleDialog(true);

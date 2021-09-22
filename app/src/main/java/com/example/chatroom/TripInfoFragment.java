@@ -182,6 +182,7 @@ public class TripInfoFragment extends Fragment {
                 }
                 trip = value.toObject(Trip.class);
                 trip.setId(value.getId());
+                user.setTrip(trip);
 
                 if (!trip.isOngoing()) {
                     user.ride_finished = true;
@@ -198,7 +199,6 @@ public class TripInfoFragment extends Fragment {
                     lr.remove();
                     navController.popBackStack();
                     navController.popBackStack();
-                    return;
                 }
             }
         });
