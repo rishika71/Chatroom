@@ -33,19 +33,22 @@
         <entry key="app/src/main/res/layout/fragment_chatroom.xml" value="0.10462962962962963" />
         <entry key="app/src/main/res/layout/fragment_chatrooms.xml" value="0.10462962962962963" />
         <entry key="app/src/main/res/layout/fragment_create_new_account.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/fragment_edit_profile.xml" value="0.19010416666666666" />
         <entry key="app/src/main/res/layout/fragment_ride_offer_detail.xml" value="0.17916666666666667" />
         <entry key="app/src/main/res/layout/fragment_rider_details.xml" value="0.335" />
         <entry key="app/src/main/res/layout/fragment_trip_info.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_trip_list.xml" value="0.17916666666666667" />
         <entry key="app/src/main/res/layout/fragment_user_profile.xml" value="0.165" />
         <entry key="app/src/main/res/layout/fragment_users.xml" value="0.19010416666666666" />
+        <entry key="app/src/main/res/layout/fragment_view_user.xml" value="0.19010416666666666" />
         <entry key="app/src/main/res/layout/trip_layout.xml" value="0.17916666666666667" />
+        <entry key="app/src/main/res/layout/users_layout.xml" value="0.19010416666666666" />
         <entry key="app/src/main/res/layout/viewer_layout.xml" value="0.19010416666666666" />
         <entry key="app/src/main/res/menu/menu.xml" value="0.10648148148148148" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="16" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" default="true" project-jdk-name="16" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
